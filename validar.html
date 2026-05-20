@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Acceso VIP — Concordia Networking</title>
+  
+  <!-- Hojas de estilo externas de Google Fonts y FontAwesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #0a0b0e;
+      --card-bg: rgba(18, 20, 26, 0.7);
+      --border-gold: rgba(212, 175, 55, 0.3);
+      --gold-solid: #d4af37;
+      --gold-glow: #f3e5ab;
+      --emerald: #10b981;
+      --rose: #ef4444;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --font-sans: 'Outfit', sans-serif;
+      --font-serif: 'Playfair Display', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Efectos de luces de fondo premium */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.15) 0%, transparent 70%);
+      top: 15%;
+      left: 10%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+      bottom: 10%;
+      right: 5%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      z-index: 2;
+    }
+
+    /* Encabezado */
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo {
+      max-height: 60px;
+      width: auto;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Tarjeta Principal */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-gold);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Estados de Carga */
+    .loader-container {
+      padding: 3rem 0;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(212, 175, 55, 0.1);
+      border-left: 4px solid var(--gold-solid);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.5rem auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Banners de Estado */
+    .status-banner {
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin-bottom: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .status-banner.valido {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--emerald);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+    }
+
+    .status-banner.usado {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--rose);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.1);
+    }
+
+    .status-banner.error {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: #f59e0b;
+    }
+
+    .status-icon {
+      font-size: 1.5rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    /* Detalles del Boleto */
+    .ticket-details {
+      margin-bottom: 2rem;
+      text-align: left;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      text-align: right;
+    }
+
+    .detail-value.gold {
+      color: var(--gold-solid);
+    }
+
+    .detail-value.important {
+      font-size: 1.1rem;
+      font-family: var(--font-serif);
+    }
+
+    /* Botón de Acción */
+    .btn-action {
+      background: linear-gradient(135deg, #111319 0%, #1c1f26 100%);
+      border: 1px solid var(--gold-solid);
+      color: var(--gold-glow);
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 1.2rem 2rem;
+      border-radius: 16px;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn-action:hover:not(:disabled) {
+      background: var(--gold-solid);
+      color: var(--bg-dark);
+      box-shadow: 0 0 25px rgba(212, 175, 55, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .btn-action:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: rgba(255,255,255,0.1);
+      color: var(--text-muted);
+    }
+
+    /* Alerta de historial */
+    .history-alert {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      align-items: center;
+    }
+
+    .history-alert i {
+      color: var(--rose);
+      font-size: 1.2rem;
+    }
+
+    /* Animación de Éxito al validar */
+    .success-checkmark {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem auto;
+      display: block;
+    }
+
+    .checkmark-circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 4;
+      stroke-miterlimit: 10;
+      stroke: var(--emerald);
+      fill: none;
+      animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: block;
+      stroke-width: 4;
+      stroke: var(--emerald);
+      stroke-miterlimit: 10;
+      box-shadow: inset 0px 0px 0px var(--emerald);
+      animation: fill .4s ease-in-out .4s forwards, scale .3s cubic-bezier(0.65, 0, 0.45, 1) .7s forwards;
+    }
+
+    .checkmark-check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+    }
+
+    @keyframes stroke {
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes scale {
+      0%, 100% { transform: none; }
+      50% { transform: scale3d(1.1, 1.1, 1); }
+    }
+    @keyframes fill {
+      100% { box-shadow: inset 0px 0px 0px 40px rgba(16, 185, 129, 0.1); }
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Encabezado de la marca -->
+    <div class="header">
+      <img src="logo.png" alt="Concordia" class="logo" onerror="this.src='https://via.placeholder.com/200x80/0a0b0e/d4af37?text=CONCORDIA'">
+      <div class="subtitle">STAFF EVENTS • CONTROL ACCESO</div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="card" id="card-content">
+      
+      <!-- Cargando Inicial -->
+      <div class="loader-container" id="loader">
+        <div class="spinner"></div>
+        <p style="color: var(--text-muted);">Consultando estado del boleto en Sheets...</p>
+      </div>
+
+      <!-- Contenido de Verificación Dinámico (Se inyecta por JS) -->
+      <div id="dynamic-content" style="display: none;"></div>
+
+    </div>
+
+    <div class="footer">
+      © 2026 Concordia Producciones • Eventos Exclusivos
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Obtener Folio desde los parámetros URL
+      const params = new URLSearchParams(window.location.search);
+      const folio = params.get("folio");
+
+      const loader = document.getElementById("loader");
+      const dynamicContent = document.getElementById("dynamic-content");
+
+      if (!folio) {
+        showError("✕ URL INVÁLIDA", "No se especificó ningún Folio de boleto para validar. Asegúrate de escanear el código QR oficial del evento.");
+        return;
+      }
+
+      // 2. Consultar el servidor para verificar el boleto
+      fetch(`/api/validar-boleto?folio=${encodeURIComponent(folio)}`)
+        .then(res => {
+          if (!res.ok) {
+            return res.json().then(err => { throw new Error(err.error || "Error al validar el boleto"); });
+          }
+          return res.json();
+        })
+        .then(data => {
+          renderBoleto(data.boleto);
+        })
+        .catch(err => {
+          showError("✕ BOLETO NO REGISTRADO", err.message || "El folio no corresponde a ningún boleto activo en el sistema de Google Sheets.");
+        });
+
+      // Renderizar datos del boleto
+      function renderBoleto(boleto) {
+        loader.style.display = "none";
+        dynamicContent.style.display = "block";
+
+        const esValido = boleto.estado.toLowerCase() === "válido";
+
+        let statusHtml = "";
+        let buttonHtml = "";
+        let historyAlertHtml = "";
+
+        if (esValido) {
+          statusHtml = `
+            <div class="status-banner valido">
+              <i class="fa-solid fa-circle-check status-icon"></i>
+              <span>Boleto Activo y Válido</span>
+            </div>
+          `;
+
+          buttonHtml = `
+            <button class="btn-action" id="btn-validate">
+              <i class="fa-solid fa-id-card-clip"></i> Confirmar e Inhabilitar
+            </button>
+          `;
+        } else {
+          statusHtml = `
+            <div class="status-banner usado">
+              <i class="fa-solid fa-circle-xmark status-icon"></i>
+              <span>Boleto Inhabilitado</span>
+            </div>
+          `;
+
+          buttonHtml = `
+            <button class="btn-action" disabled>
+              <i class="fa-solid fa-ban"></i> Acceso No Permitido
+            </button>
+          `;
+
+          historyAlertHtml = `
+            <div class="history-alert">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              <strong>Boleto ya registrado anteriormente</strong>
+              <span>Este código QR ya fue escaneado e inhabilitado.</span>
+              <span style="font-weight: 500; color: var(--text-main); margin-top: 0.3rem;">Hora de escaneo: ${boleto.fechaValidacion}</span>
+            </div>
+          `;
+        }
+
+        dynamicContent.innerHTML = `
+          ${statusHtml}
+          
+          <h2 style="font-family: var(--font-serif); font-size: 1.6rem; color: #fff; margin-bottom: 0.5rem; text-transform: uppercase;">
+            ${boleto.cliente}
+          </h2>
+          <p style="color: var(--gold-solid); font-size: 0.95rem; font-weight: 600; margin-bottom: 1.5rem;">
+            FOLIO BOLETO: #${boleto.folio}
+          </p>
+
+          <div class="ticket-details">
+            <div class="detail-row">
+              <span class="detail-label">Invitación</span>
+              <span class="detail-value gold important">CONEXIÓN VIP</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Marca / Negocio</span>
+              <span class="detail-value">${boleto.negocio}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Giro</span>
+              <span class="detail-value">${boleto.giro}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Boletos Adquiridos</span>
+              <span class="detail-value gold">${boleto.cantidad} ${boleto.cantidad === 1 ? 'Acceso' : 'Accesos'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Monto Pagado</span>
+              <span class="detail-value">$${boleto.total.toLocaleString('es-MX')} MXN</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Fecha Compra</span>
+              <span class="detail-value" style="font-size: 0.8rem;">${boleto.fecha}</span>
+            </div>
+          </div>
+
+          ${buttonHtml}
+          ${historyAlertHtml}
+        `;
+
+        // Añadir evento al botón de confirmación si está activo
+        const btnValidate = document.getElementById("btn-validate");
+        if (btnValidate) {
+          btnValidate.addEventListener("click", () => {
+            inhabilitarBoleto(boleto.folio);
+          });
+        }
+      }
+
+      // Llamar al backend para inhabilitar
+      function inhabilitarBoleto(folioId) {
+        const btnValidate = document.getElementById("btn-validate");
+        btnValidate.disabled = true;
+        btnValidate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Registrando ingreso...`;
+
+        fetch('/api/inhabilitar-boleto', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ folio: folioId })
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("No se pudo inhabilitar el boleto.");
+          return res.json();
+        })
+        .then(data => {
+          // Mostrar animación de éxito
+          showSuccessValidation(folioId, data.fechaValidacion);
+        })
+        .catch(err => {
+          alert("Error al inhabilitar el boleto: " + err.message);
+          btnValidate.disabled = false;
+          btnValidate.innerHTML = `<i class="fa-solid fa-id-card-clip"></i> Confirmar e Inhabilitar`;
+        });
+      }
+
+      // Animación de validación exitosa
+      function showSuccessValidation(folioId, fechaValidacion) {
+        const cardContent = document.getElementById("card-content");
+        
+        cardContent.innerHTML = `
+          <div class="success-checkmark">
+            <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+              <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+              <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+          </div>
+
+          <h2 style="color: var(--emerald); font-family: var(--font-serif); font-size: 1.8rem; margin-bottom: 0.8rem; text-transform: uppercase;">
+            ¡Acceso Autorizado!
+          </h2>
+          <p style="color: var(--text-main); font-size: 1.05rem; font-weight: 500; margin-bottom: 0.3rem;">
+            Ingreso registrado correctamente en Google Sheets.
+          </p>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.8rem;">
+            El boleto con Folio <strong>#${folioId}</strong> ha sido inhabilitado para futuros ingresos.
+          </p>
+
+          <div class="ticket-details" style="text-align: center; background: rgba(16, 185, 129, 0.03); border-color: rgba(16, 185, 129, 0.2);">
+            <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem;">
+              Hora de Validación
+            </p>
+            <strong style="color: var(--emerald); font-size: 1.1rem;">
+              ${fechaValidacion}
+            </strong>
+          </div>
+
+          <button class="btn-action" style="background: rgba(16, 185, 129, 0.1); border-color: var(--emerald); color: var(--emerald); cursor: default;">
+            <i class="fa-solid fa-circle-check"></i> Ingreso Completado
+          </button>
+        `;
+      }
+
+      // Mostrar Alerta de Error
+      function showError(title, description) {
+        loader.style.display = "none";
+        dynamicContent.style.display = "block";
+
+        dynamicContent.innerHTML = `
+          <div class="status-banner usado">
+            <i class="fa-solid fa-circle-exclamation status-icon"></i>
+            <span>${title}</span>
+          </div>
+
+          <div style="padding: 1.5rem 0; text-align: center;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 3rem; color: var(--rose); margin-bottom: 1.5rem; opacity: 0.8;"></i>
+            <p style="color: #fff; font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem;">
+              Control de Seguridad
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+              ${description}
+            </p>
+          </div>
+
+          <button class="btn-action" onclick="window.location.reload();">
+            <i class="fa-solid fa-rotate"></i> Reintentar Escaneo
+          </button>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

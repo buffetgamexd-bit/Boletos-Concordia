@@ -82,12 +82,14 @@ async function appendBoletoToSheet(data) {
       'Giro', 
       'Teléfono', 
       'Cant. Boletos', 
-      'Total MXN'
+      'Total MXN',
+      'Estado',
+      'Fecha Validación'
     ]);
     const fecha = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
     await sheets.spreadsheets.values.append({
       spreadsheetId: SHEET_ID,
-      range: `${SHEET_TAB}!A:I`,
+      range: `${SHEET_TAB}!A:K`,
       valueInputOption: 'USER_ENTERED',
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
@@ -100,7 +102,9 @@ async function appendBoletoToSheet(data) {
           data.giro, 
           data.telefono, 
           data.cantidad, 
-          data.total
+          data.total,
+          'Válido',
+          ''
         ]],
       },
     });
@@ -243,8 +247,13 @@ app.post('/send-confirmacion', async (req, res) => {
       return res.json({ ok: true, sheets: true, emailSent: false });
     }
 
+    // Resolución dinámica de origen para el enlace de validación del QR
+    const host = req.headers.host || 'localhost:4000';
+    const origin = host.includes('localhost') ? `http://${host}` : `https://${host}`;
+    const validationUrl = `${origin}/validar?folio=${folio}`;
+
     // Código QR dinámico para acceso rápido usando la API de QR Server
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CONCORDIA-NETWORKING-${folio}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(validationUrl)}`;
 
     // 2. ENVIAR CORREO VIP AL COMPRADOR (Estilo Boarding Pass)
     if (clienteEmail) {
@@ -323,6 +332,18 @@ app.post('/send-confirmacion', async (req, res) => {
               </div>
             </div>
 
+            <!-- Código QR de Acceso Integrado -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; margin-top: 20px; text-align: center;">
+              <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block; margin-bottom: 12px; letter-spacing: 2px;">CÓDIGO QR DE ACCESO PERSONAL</span>
+              <div style="background-color: #ffffff; padding: 12px; display: inline-block; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                <img src="cid:concordiaqr" alt="Código QR de Validación" style="width: 150px; height: 150px; display: block;" />
+              </div>
+              <p style="color: #9ca3af; font-size: 11px; margin: 10px 0 0 0; line-height: 1.4;">
+                Presenta este código QR en tu celular para ingresar al evento.<br />
+                <em style="color: #d4af37;">Una vez escaneado por el staff, quedará inhabilitado.</em>
+              </p>
+            </div>
+
           </div>
 
           <!-- Nota informativa de ubicación -->
@@ -349,7 +370,14 @@ app.post('/send-confirmacion', async (req, res) => {
           {
             filename: 'logo.png',
             path: path.join(__dirname, '..', 'logo.png'),
-            cid: 'concordialogo'
+            cid: 'concordialogo',
+            contentDisposition: 'inline'
+          },
+          {
+            filename: 'qr.png',
+            path: qrUrl,
+            cid: 'concordiaqr',
+            contentDisposition: 'inline'
           }
         ]
       }).catch(e => console.error('Error al enviar correo al comprador:', e.message));
@@ -420,7 +448,8 @@ app.post('/send-confirmacion', async (req, res) => {
           {
             filename: 'logo.png',
             path: path.join(__dirname, '..', 'logo.png'),
-            cid: 'concordialogo'
+            cid: 'concordialogo',
+            contentDisposition: 'inline'
           }
         ]
       }).catch(e => console.error('Error al enviar correo al comerciante:', e.message));
@@ -429,6 +458,113 @@ app.post('/send-confirmacion', async (req, res) => {
     res.json({ ok: true, sheets: true, emailSent: true });
   } catch (err) {
     console.error('Error procesando confirmación de pago:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ============ ENDPOINTS DE VALIDACIÓN Y CONTROL DE QR ============
+
+// Servir la página de validación móvil
+app.get('/validar', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'validar.html'));
+});
+
+// Obtener estado y detalles de un boleto por Folio
+app.get('/api/validar-boleto', async (req, res) => {
+  const { folio } = req.query;
+  if (!folio) return res.status(400).json({ error: 'Folio es requerido' });
+
+  try {
+    const sheets = await getSheetsClient();
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!A:K`
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron registros en el servidor.' });
+    }
+
+    // Buscar coincidencia por Folio (index 0)
+    let foundBoleto = null;
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (row[0] && row[0].toUpperCase() === folio.trim().toUpperCase()) {
+        foundBoleto = {
+          folio: row[0],
+          fecha: row[1] || '',
+          cliente: row[2] || '',
+          email: row[3] || '',
+          negocio: row[4] || '',
+          giro: row[5] || '',
+          telefono: row[6] || '',
+          cantidad: parseInt(row[7]) || 1,
+          total: parseFloat(row[8]) || 0,
+          estado: row[9] || 'Válido',
+          fechaValidacion: row[10] || ''
+        };
+        break;
+      }
+    }
+
+    if (!foundBoleto) {
+      return res.status(404).json({ error: 'El folio no corresponde a ningún boleto registrado.' });
+    }
+
+    res.json({ ok: true, boleto: foundBoleto });
+  } catch (err) {
+    console.error('Error al validar boleto:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Inhabilitar boleto (marcar como Usado)
+app.post('/api/inhabilitar-boleto', async (req, res) => {
+  const { folio } = req.body;
+  if (!folio) return res.status(400).json({ error: 'Folio es requerido' });
+
+  try {
+    const sheets = await getSheetsClient();
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!A:K`
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron registros.' });
+    }
+
+    // Buscar coincidencia por Folio
+    let rowIndex = -1;
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] && rows[i][0].toUpperCase() === folio.trim().toUpperCase()) {
+        rowIndex = i + 1; // Convertir a índice de hoja de cálculo 1-based
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      return res.status(404).json({ error: 'Boleto no encontrado.' });
+    }
+
+    const fechaVal = new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' });
+
+    // Actualizar Columna J (Estado) y Columna K (Fecha Validación)
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID,
+      range: `${SHEET_TAB}!J${rowIndex}:K${rowIndex}`,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: {
+        values: [['Usado', fechaVal]]
+      }
+    });
+
+    console.log(`🎟️ Boleto Folio #${folio} inhabilitado con éxito a las ${fechaVal}`);
+    res.json({ ok: true, msg: 'Boleto inhabilitado con éxito.', fechaValidacion: fechaVal });
+  } catch (err) {
+    console.error('Error al inhabilitar boleto:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
