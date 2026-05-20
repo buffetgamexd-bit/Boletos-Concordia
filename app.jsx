@@ -283,7 +283,7 @@ function App() {
           </p>
           <h1 className="hero-title" style={{ fontSize: '3.3rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span style={{ zIndex: 2 }}>CONEXIÓN Y NEGOCIOS</span>
-            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '550px', height: '110px', objectFit: 'cover', objectPosition: 'center', marginTop: '-1rem', marginBottom: '1rem', zIndex: 1, marginLeft: '-3rem' }} />
+            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '550px', height: '110px', objectFit: 'cover', objectPosition: 'left center', marginTop: '-1rem', marginBottom: '1rem', zIndex: 1, marginLeft: '-15%', paddingRight: '15%' }} />
           </h1>
           <p className="hero-subtitle">
             ¡Hola! Gracias por tu interés en nuestro evento exclusivo de networking. Te invitamos a una experiencia diseñada para conectar con empresarios, líderes y profesionales en un ambiente relajado, selecto y estratégico en Querétaro.
