@@ -5,6 +5,9 @@
     { "source": "/create-checkout-session", "destination": "/api/index.js" },
     { "source": "/session-details", "destination": "/api/index.js" },
     { "source": "/send-confirmacion", "destination": "/api/index.js" },
+    { "source": "/api/validar-boleto", "destination": "/api/index.js" },
+    { "source": "/api/inhabilitar-boleto", "destination": "/api/index.js" },
+    { "source": "/validar", "destination": "/validar.html" },
     { "source": "/((?!.*\\.(?:jsx|js|css|png|jpg|jpeg|gif|svg|ico|json)$).*)$", "destination": "/index.html" }
   ]
 }
