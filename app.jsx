@@ -281,9 +281,9 @@ function App() {
           <p className="hero-tag">
             <i className="fa-solid fa-star"></i> Evento de Networking de Alto Nivel
           </p>
-          <h1 className="hero-title" style={{ fontSize: '3.3rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            CONEXIÓN Y NEGOCIOS 
-            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '600px', objectFit: 'contain', marginTop: '0.5rem' }} />
+          <h1 className="hero-title" style={{ fontSize: '3.3rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span>CONEXIÓN Y NEGOCIOS</span>
+            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '600px', objectFit: 'contain', margin: '-3.5rem 0' }} />
           </h1>
           <p className="hero-subtitle">
             ¡Hola! Gracias por tu interés en nuestro evento exclusivo de networking. Te invitamos a una experiencia diseñada para conectar con empresarios, líderes y profesionales en un ambiente relajado, selecto y estratégico en Querétaro.
@@ -333,11 +333,7 @@ function App() {
           <ul className="ticket-features">
             <li className="ticket-feature-item">
               <i className="fa-solid fa-circle-check ticket-feature-icon"></i>
-              <span>🍸 <strong>Coctelería premium</strong> de bienvenida</span>
-            </li>
-            <li className="ticket-feature-item">
-              <i className="fa-solid fa-circle-check ticket-feature-icon"></i>
-              <span>🍽️ <strong>Cena de 3 tiempos</strong> exclusiva por el Chef</span>
+              <span>🍸 <strong>Catering & Cocktelería</strong></span>
             </li>
             <li className="ticket-feature-item">
               <i className="fa-solid fa-circle-check ticket-feature-icon"></i>
@@ -345,7 +341,11 @@ function App() {
             </li>
             <li className="ticket-feature-item">
               <i className="fa-solid fa-circle-check ticket-feature-icon"></i>
-              <span>💻 <strong>Presentación mediante Slide (20 minutos)</strong> de tu empresa en el evento</span>
+              <span>🎯 <strong>Expo y activaciones</strong></span>
+            </li>
+            <li className="ticket-feature-item">
+              <i className="fa-solid fa-circle-check ticket-feature-icon"></i>
+              <span>💻 <strong>Presentación de tu empresa</strong> en el evento</span>
             </li>
           </ul>
         </div>
