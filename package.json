@@ -1,0 +1,22 @@
+{
+  "name": "boletos-networking",
+  "version": "1.0.0",
+  "description": "Landing page de venta de boletos para evento de networking de alto nivel con Stripe y Google Sheets",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "googleapis": "^171.4.0",
+    "nodemailer": "^8.0.7",
+    "stripe": "^22.1.0"
+  }
+}

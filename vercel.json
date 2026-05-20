@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/config", "destination": "/api/index.js" },
+    { "source": "/create-checkout-session", "destination": "/api/index.js" },
+    { "source": "/session-details", "destination": "/api/index.js" },
+    { "source": "/send-confirmacion", "destination": "/api/index.js" },
+    { "source": "/((?!.*\\.(?:jsx|js|css|png|jpg|jpeg|gif|svg|ico|json)$).*)$", "destination": "/index.html" }
+  ]
+}
