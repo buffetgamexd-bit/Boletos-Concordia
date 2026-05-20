@@ -436,7 +436,7 @@ function App() {
         {/* BOTÓN INFERIOR DE ACCESO PARA STAFF (VALIDAR QRS) */}
         <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(212, 175, 55, 0.2)', paddingTop: '1.5rem' }}>
           <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>¿Eres parte del Staff de Concordia?</p>
-          <a href="/validar" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem', display: 'inline-flex', background: 'transparent', border: '1px solid var(--gold-primary)' }}>
+          <a href="/validar" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem', display: 'inline-flex', background: 'transparent', border: '1px solid var(--gold-primary)', color: 'var(--emerald-primary)' }}>
             <i className="fa-solid fa-qrcode" style={{ marginRight: '0.5rem' }}></i> Escanear e Inhabilitar Boletos
           </a>
         </div>
