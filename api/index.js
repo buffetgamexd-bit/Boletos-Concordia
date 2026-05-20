@@ -157,7 +157,7 @@ app.post('/create-checkout-session', async (req, res) => {
         price_data: {
           currency: 'mxn',
           product_data: {
-            name: 'Boleto Acceso VIP — Conexión y Negocios',
+            name: 'Boleto Acceso - Conexión y Negocios',
             description: 'Experiencia exclusiva de networking: Coctelería, Cena de 3 tiempos, Networking de alto valor y oportunidad de proyectar slide corporativa. Club Altozano, 3 de Junio, 7:00 PM.',
           },
           unit_amount: 130000, // $1,300.00 MXN en centavos
@@ -196,7 +196,7 @@ app.get('/session-details', async (req, res) => {
     const session = await stripe.checkout.sessions.retrieve(id);
     res.json({
       folio: id.slice(-8).toUpperCase(),
-      nombreCompleto: session.metadata.nombreCompleto || 'Comprador VIP',
+      nombreCompleto: session.metadata.nombreCompleto || 'Comprador',
       negocio: session.metadata.negocio || 'N/A',
       giro: session.metadata.giro || 'N/A',
       telefono: session.metadata.telefono || 'N/A',
@@ -255,16 +255,16 @@ app.post('/send-confirmacion', async (req, res) => {
     // Código QR dinámico para acceso rápido usando la API de QR Server
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(validationUrl)}`;
 
-    // 2. ENVIAR CORREO VIP AL COMPRADOR (Estilo Boarding Pass)
+    // 2. ENVIAR CORREO AL COMPRADOR (Estilo Boarding Pass)
     if (clienteEmail) {
       const emailCompradorHtml = `
       <div style="font-family: 'Outfit', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a0b0e; color: #f3f4f6; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
         
-        <!-- Encabezado VIP -->
+        <!-- Encabezado -->
         <div style="background: linear-gradient(135deg, #181a22 0%, #111319 100%); padding: 30px; text-align: center; border-bottom: 2px dashed rgba(212, 175, 55, 0.3); position: relative;">
           <img src="cid:concordialogo" alt="Concordia Producciones" style="max-height: 70px; margin-bottom: 12px; display: inline-block;" />
           <h2 style="color: #d4af37; margin: 0; font-size: 24px; font-family: 'Playfair Display', Georgia, serif; letter-spacing: 2px; text-transform: uppercase;">CONCORDIA PRODUCCIONES</h2>
-          <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 11px; letter-spacing: 4px; text-transform: uppercase;">VIP BOARDING PASS • ACCESO EXCLUSIVO</p>
+          <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 11px; letter-spacing: 4px; text-transform: uppercase;">BOARDING PASS • ACCESO AL EVENTO</p>
         </div>
 
         <!-- Cuerpo del Pase -->
@@ -281,7 +281,7 @@ app.post('/send-confirmacion', async (req, res) => {
             <p style="margin: 5px 0; font-size: 14px; color: #f3f4f6;">🍽️ <strong>Cena de 3 tiempos</strong> exclusiva</p>
             <p style="margin: 5px 0; font-size: 14px; color: #f3f4f6;">🤝 <strong>Networking de alto valor</strong> y conexiones reales</p>
             <p style="margin: 12px 0 0 0; font-size: 13.5px; color: #f3e5ab; line-height: 1.5;">
-              🚀 <strong>¡Presenta tu marca!</strong> Como asistente VIP, tienes la oportunidad de presentar tu empresa, proyecto o servicios mediante una slide en pantalla gigante durante el evento para generar nuevas conexiones y oportunidades de negocio con compradores y vendedores.
+              💻 <strong>¡Presenta tu marca!</strong> Como asistente, tienes la oportunidad de presentar tu empresa, proyecto o servicios mediante una slide en pantalla gigante durante el evento para generar nuevas conexiones y oportunidades de negocio con compradores y vendedores.
             </p>
             <p style="margin: 8px 0 0 0; font-size: 12px; color: #9ca3af; line-height: 1.4;">
               <em>Para coordinar la proyección, envía tu slide de presentación (formato 16:9 / horizontal) respondiendo directamente a este correo electrónico.</em>
@@ -366,7 +366,7 @@ app.post('/send-confirmacion', async (req, res) => {
       await transporter.sendMail({
         from: `"Concordia Producciones" <${process.env.GMAIL_USER}>`,
         to: clienteEmail,
-        subject: `🎟️ Tu Boleto VIP Confirmado - Folio #${folio} - Concordia Producciones`,
+        subject: `🎟️ Tu Boleto Confirmado - Folio #${folio} - Concordia Producciones`,
         html: emailCompradorHtml,
         attachments: [
           {

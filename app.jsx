@@ -133,7 +133,7 @@ function App() {
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '1.5rem' }}>
             <div className="loader-spinner" style={{ width: '50px', height: '50px', borderLeftColor: '#d4af37' }}></div>
-            <h3 style={{ color: '#d4af37', fontFamily: 'var(--font-serif)', fontSize: '1.5rem' }}>Procesando tu Registro VIP...</h3>
+            <h3 style={{ color: '#d4af37', fontFamily: 'var(--font-serif)', fontSize: '1.5rem' }}>Procesando tu Registro...</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Generando pase QR y enviando confirmación por correo.</p>
           </div>
         ) : successData ? (
@@ -143,7 +143,7 @@ function App() {
             </div>
             <h1 className="success-title">¡Registro de Acceso Confirmado!</h1>
             <p className="success-desc">
-              Hola <strong>{successData.nombreCompleto}</strong>, tu pase de abordaje VIP se ha registrado con éxito en el sistema. Hemos enviado tu boleto oficial en formato digital y los detalles del evento a tu correo <strong>{successData.email}</strong>.
+              Hola <strong>{successData.nombreCompleto}</strong>, tu pase de abordaje se ha registrado con éxito en el sistema. Hemos enviado tu boleto oficial en formato digital y los detalles del evento a tu correo <strong>{successData.email}</strong>.
             </p>
 
             {/* PASE DE ABORDAR PREMIUM IMPRIMIBLE */}
@@ -161,7 +161,7 @@ function App() {
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <p className="pass-field-label">TIPO ACCESO</p>
-                  <p className="pass-field-value gold">CONEXIÓN VIP</p>
+                  <p className="pass-field-value gold">CONEXIÓN Y NEGOCIOS</p>
                 </div>
                 <div>
                   <p className="pass-field-label">NEGOCIO / MARCA</p>
@@ -194,7 +194,7 @@ function App() {
                 {/* CÓDIGO QR EN LA INTERFAZ DE ÉXITO */}
                 <div style={{ gridColumn: 'span 2', textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0, 0, 0, 0.05)' }}>
                   <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    {successData.cantidad === 1 ? 'TU CÓDIGO QR DE ACCESO VIP PERSONAL' : `TU CÓDIGO QR DE ACCESO VIP GRUPAL (${successData.cantidad} PERSONAS)`}
+                    {successData.cantidad === 1 ? 'TU CÓDIGO QR DE ACCESO PERSONAL' : `TU CÓDIGO QR DE ACCESO GRUPAL (${successData.cantidad} PERSONAS)`}
                   </span>
                   <div style={{ background: '#fff', padding: '0.8rem', display: 'inline-block', borderRadius: '12px' }}>
                     <img 
@@ -283,7 +283,7 @@ function App() {
           </p>
           <h1 className="hero-title" style={{ fontSize: '3.3rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <span style={{ zIndex: 2 }}>CONEXIÓN Y NEGOCIOS</span>
-            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '550px', height: '110px', objectFit: 'cover', objectPosition: 'center', marginTop: '-1rem', marginBottom: '1rem', zIndex: 1 }} />
+            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '550px', height: '110px', objectFit: 'cover', objectPosition: 'center', marginTop: '-1rem', marginBottom: '1rem', zIndex: 1, marginLeft: '-3rem' }} />
           </h1>
           <p className="hero-subtitle">
             ¡Hola! Gracias por tu interés en nuestro evento exclusivo de networking. Te invitamos a una experiencia diseñada para conectar con empresarios, líderes y profesionales en un ambiente relajado, selecto y estratégico en Querétaro.
@@ -311,7 +311,7 @@ function App() {
         <div className="ticket-card">
           <div className="ticket-header">
             <span className="ticket-phase">CUPO LIMITADO • REGÍSTRATE</span>
-            <h3 className="ticket-title">Acceso Personal VIP</h3>
+            <h3 className="ticket-title">Acceso Personal</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Incluye registro, cena y actividades de valor</p>
             
             <div className="ticket-pricing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0' }}>
@@ -455,7 +455,7 @@ function App() {
             <button className="modal-close" onClick={() => setModalOpen(false)}>
               <i className="fa-solid fa-xmark"></i>
             </button>
-            <h2 className="modal-title">Registro VIP</h2>
+            <h2 className="modal-title">Registro al Evento</h2>
             <p className="modal-subtitle">Proporciona los datos del asistente para personalizar tu pase digital.</p>
             
             <form onSubmit={handleCheckoutSubmit}>

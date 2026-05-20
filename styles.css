@@ -232,7 +232,6 @@ body {
   font-weight: 700;
   line-height: 1.1;
   color: var(--text-main);
-  text-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
 .hero-title span {
