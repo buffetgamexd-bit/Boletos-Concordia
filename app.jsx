@@ -180,20 +180,14 @@ function App() {
                   <p className="pass-field-value">$MXN {successData.total.toLocaleString('es-MX')}</p>
                 </div>
                 
-                <div className="pass-footer">
+                <div className="pass-footer" style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1.5rem', marginTop: '1rem' }}>
                   <div>
                     <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>📍 UBICACIÓN</span>
-                    <strong style={{ fontSize: '12px', color: '#fff' }}>Club Altozano Qro.</strong>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase', marginTop: '10px' }}>🗓️ FECHA Y HORA</span>
-                    <strong style={{ fontSize: '12px', color: '#fff' }}>3 Jun 2026 | 7:00 PM</strong>
+                    <strong style={{ fontSize: '13px', color: '#fff' }}>Club Altozano Qro.</strong>
                   </div>
-                  
-                  <div className="pass-barcode">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=CONCORDIA-NETWORKING-${successData.folio}`} 
-                      alt="Código QR de Registro" 
-                    />
-                    <span style={{ fontSize: '9px', color: '#000', fontWeight: 'bold' }}>SCAN PARA ENTRAR</span>
+                  <div style={{ textAlign: 'right' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>🗓️ FECHA Y HORA</span>
+                    <strong style={{ fontSize: '13px', color: '#fff' }}>3 Jun 2026 | 7:00 PM</strong>
                   </div>
                 </div>
               </div>
@@ -552,11 +546,11 @@ function App() {
               <button type="submit" className="btn-primary btn-emerald" style={{ padding: '1.3rem' }} disabled={loading}>
                 {loading ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div className="loader-spinner"></div> Redirigiendo a Pago...
+                    <div className="loader-spinner"></div> Redirigiendo...
                   </div>
                 ) : (
                   <>
-                    <i className="fa-solid fa-credit-card"></i> Pagar con Stripe
+                    <i className="fa-solid fa-credit-card"></i> Pagar Boleto
                   </>
                 )}
               </button>
