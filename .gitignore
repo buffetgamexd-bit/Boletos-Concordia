@@ -17,3 +17,7 @@ replit.nix
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Credenciales JSON de Google
+boletos-concordia-*.json
+
