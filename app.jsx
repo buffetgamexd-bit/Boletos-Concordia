@@ -282,8 +282,8 @@ function App() {
             <i className="fa-solid fa-star"></i> Evento de Networking de Alto Nivel
           </p>
           <h1 className="hero-title" style={{ fontSize: '3.3rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <span>CONEXIÓN Y NEGOCIOS</span>
-            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '600px', objectFit: 'contain', margin: '-3.5rem 0' }} />
+            <span style={{ zIndex: 2 }}>CONEXIÓN Y NEGOCIOS</span>
+            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '550px', height: '110px', objectFit: 'cover', objectPosition: 'center', marginTop: '-1rem', marginBottom: '1rem', zIndex: 1 }} />
           </h1>
           <p className="hero-subtitle">
             ¡Hola! Gracias por tu interés en nuestro evento exclusivo de networking. Te invitamos a una experiencia diseñada para conectar con empresarios, líderes y profesionales en un ambiente relajado, selecto y estratégico en Querétaro.
@@ -342,10 +342,6 @@ function App() {
             <li className="ticket-feature-item">
               <i className="fa-solid fa-circle-check ticket-feature-icon"></i>
               <span>🎯 <strong>Expo y activaciones</strong></span>
-            </li>
-            <li className="ticket-feature-item">
-              <i className="fa-solid fa-circle-check ticket-feature-icon"></i>
-              <span>💻 <strong>Presentación de tu empresa</strong> en el evento</span>
             </li>
           </ul>
         </div>
