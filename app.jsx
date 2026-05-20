@@ -194,7 +194,7 @@ function App() {
                 {/* CÓDIGO QR EN LA INTERFAZ DE ÉXITO */}
                 <div style={{ gridColumn: 'span 2', textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
                   <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    TU CÓDIGO QR DE ACCESO VIP
+                    {successData.cantidad === 1 ? 'TU CÓDIGO QR DE ACCESO VIP PERSONAL' : `TU CÓDIGO QR DE ACCESO VIP GRUPAL (${successData.cantidad} PERSONAS)`}
                   </span>
                   <div style={{ background: '#fff', padding: '0.8rem', display: 'inline-block', borderRadius: '12px' }}>
                     <img 
@@ -204,7 +204,7 @@ function App() {
                     />
                   </div>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1rem' }}>
-                    Presenta este QR al staff en la entrada del evento.
+                    Presenta este QR al staff en la entrada del evento (Válido para {successData.cantidad} {successData.cantidad === 1 ? 'persona' : 'personas'}).
                   </p>
                 </div>
               </div>

@@ -426,6 +426,7 @@
         dynamicContent.style.display = "block";
 
         const esValido = boleto.estado.toLowerCase() === "válido";
+        const personasText = boleto.cantidad === 1 ? "1 PERSONA" : `${boleto.cantidad} PERSONAS`;
 
         let statusHtml = "";
         let buttonHtml = "";
@@ -433,22 +434,32 @@
 
         if (esValido) {
           statusHtml = `
-            <div class="status-banner valido">
-              <i class="fa-solid fa-circle-check status-icon"></i>
-              <span>Boleto Activo y Válido</span>
+            <div class="status-banner valido" style="flex-direction: column; padding: 1.5rem; gap: 0.5rem; min-height: 100px;">
+              <div style="display: flex; align-items: center; gap: 0.8rem;">
+                <i class="fa-solid fa-circle-check status-icon" style="font-size: 1.8rem;"></i>
+                <span style="font-size: 1.1rem; letter-spacing: 2px;">BOLETO VÁLIDO</span>
+              </div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); margin-top: 0.3rem;">
+                🎟️ ACCESO PARA: ${personasText}
+              </div>
             </div>
           `;
 
           buttonHtml = `
-            <button class="btn-action" id="btn-validate">
-              <i class="fa-solid fa-id-card-clip"></i> Confirmar e Inhabilitar
+            <button class="btn-action" id="btn-validate" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-color: #10b981; color: #fff;">
+              <i class="fa-solid fa-id-card-clip"></i> Registrar Ingreso (${personasText})
             </button>
           `;
         } else {
           statusHtml = `
-            <div class="status-banner usado">
-              <i class="fa-solid fa-circle-xmark status-icon"></i>
-              <span>Boleto Inhabilitado</span>
+            <div class="status-banner usado" style="flex-direction: column; padding: 1.5rem; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.8rem;">
+                <i class="fa-solid fa-circle-xmark status-icon" style="font-size: 1.8rem;"></i>
+                <span style="font-size: 1.1rem; letter-spacing: 2px;">BOLETO INHABILITADO</span>
+              </div>
+              <div style="font-size: 1.4rem; font-weight: 700; color: #fff; opacity: 0.9; margin-top: 0.3rem;">
+                Adquirido para: ${personasText}
+              </div>
             </div>
           `;
 
@@ -456,8 +467,11 @@
             <button class="btn-action" disabled style="margin-bottom: 1rem;">
               <i class="fa-solid fa-ban"></i> Acceso No Permitido
             </button>
-            <button class="btn-action btn-scan-next" id="btn-scan-next" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none;">
+            <button class="btn-action btn-scan-next" id="btn-scan-next" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none; margin-bottom: 1rem;">
               <i class="fa-solid fa-camera"></i> Escanear Otro QR
+            </button>
+            <button class="btn-action" onclick="window.location.search = '';" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+              <i class="fa-solid fa-house"></i> Volver al Inicio
             </button>
           `;
 
@@ -516,7 +530,7 @@
         const btnValidate = document.getElementById("btn-validate");
         if (btnValidate) {
           btnValidate.addEventListener("click", () => {
-            inhabilitarBoleto(boleto.folio);
+            inhabilitarBoleto(boleto.folio, boleto.cantidad);
           });
         }
 
@@ -530,7 +544,7 @@
       }
 
       // Llamar al backend para inhabilitar
-      function inhabilitarBoleto(folioId) {
+      function inhabilitarBoleto(folioId, cantidad) {
         const btnValidate = document.getElementById("btn-validate");
         btnValidate.disabled = true;
         btnValidate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Registrando ingreso...`;
@@ -546,18 +560,19 @@
         })
         .then(data => {
           // Mostrar animación de éxito
-          showSuccessValidation(folioId, data.fechaValidacion);
+          showSuccessValidation(folioId, data.fechaValidacion, cantidad);
         })
         .catch(err => {
           alert("Error al inhabilitar el boleto: " + err.message);
           btnValidate.disabled = false;
-          btnValidate.innerHTML = `<i class="fa-solid fa-id-card-clip"></i> Confirmar e Inhabilitar`;
+          btnValidate.innerHTML = `<i class="fa-solid fa-id-card-clip"></i> Registrar Ingreso`;
         });
       }
 
       // Animación de validación exitosa
-      function showSuccessValidation(folioId, fechaValidacion) {
+      function showSuccessValidation(folioId, fechaValidacion, cantidad) {
         const cardContent = document.getElementById("card-content");
+        const personasText = cantidad === 1 ? "1 PERSONA" : `${cantidad} PERSONAS`;
         
         cardContent.innerHTML = `
           <div class="success-checkmark">
@@ -570,6 +585,14 @@
           <h2 style="color: var(--emerald); font-family: var(--font-serif); font-size: 1.8rem; margin-bottom: 0.8rem; text-transform: uppercase;">
             ¡Acceso Autorizado!
           </h2>
+
+          <div style="background: rgba(16, 185, 129, 0.15); border: 2px solid var(--emerald); border-radius: 16px; padding: 1rem; margin-bottom: 1.5rem; text-align: center;">
+            <span style="display: block; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.3rem;">Total de Personas Permitidas</span>
+            <strong style="font-size: 2rem; color: #fff; font-weight: 800; display: block; text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);">
+              🎟️ ${personasText}
+            </strong>
+          </div>
+
           <p style="color: var(--text-main); font-size: 1.05rem; font-weight: 500; margin-bottom: 0.3rem;">
             Ingreso registrado correctamente en Google Sheets.
           </p>
@@ -577,7 +600,7 @@
             El boleto con Folio <strong>#${folioId}</strong> ha sido inhabilitado para futuros ingresos.
           </p>
 
-          <div class="ticket-details" style="text-align: center; background: rgba(16, 185, 129, 0.03); border-color: rgba(16, 185, 129, 0.2);">
+          <div class="ticket-details" style="text-align: center; background: rgba(16, 185, 129, 0.03); border-color: rgba(16, 185, 129, 0.2); margin-bottom: 1.5rem;">
             <p style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem;">
               Hora de Validación
             </p>
@@ -587,11 +610,15 @@
           </div>
 
           <button class="btn-action" style="background: rgba(16, 185, 129, 0.1); border-color: var(--emerald); color: var(--emerald); cursor: default; margin-bottom: 1rem;">
-            <i class="fa-solid fa-circle-check"></i> Ingreso Completado
+            <i class="fa-solid fa-circle-check"></i> Ingreso Completado (${personasText})
           </button>
 
-          <button class="btn-action" id="btn-scan-next" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none;">
+          <button class="btn-action" id="btn-scan-next" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none; margin-bottom: 1rem;">
             <i class="fa-solid fa-camera"></i> Escanear Otro QR
+          </button>
+          
+          <button class="btn-action" onclick="window.location.search = '';" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+            <i class="fa-solid fa-house"></i> Volver al Inicio
           </button>
         `;
 
@@ -625,7 +652,11 @@
             <i class="fa-solid fa-camera"></i> Escanear Otro QR
           </button>
 
-          <button class="btn-action" onclick="window.location.reload();" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+          <button class="btn-action" onclick="window.location.search = '';" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-house"></i> Volver al Inicio
+          </button>
+
+          <button class="btn-action" onclick="window.location.reload();" style="background: transparent; border: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); font-size: 0.85rem;">
             <i class="fa-solid fa-rotate"></i> Reintentar Carga
           </button>
         `;
@@ -638,46 +669,66 @@
       // Variable para control del escáner
       let html5QrCode = null;
 
-      // Iniciar el escáner de cámara trasera
+      // Iniciar el escáner de cámara trasera con verificación WebRTC y in-app browsers
       function startCameraScanner() {
+        // 1. Verificaciones de compatibilidad y carga de la librería
+        if (typeof Html5Qrcode === "undefined") {
+          alert("Error: La librería del lector QR no se cargó correctamente. Por favor, revisa tu conexión e intenta recargar la página.");
+          return;
+        }
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          alert("⚠️ Restricción de Cámara:\n\nTu navegador o la aplicación actual (ej. Telegram, Messenger o Facebook) no tienen habilitados los permisos para usar la cámara WebRTC.\n\nPor favor, abre este panel directamente en el navegador de tu sistema (Safari en iPhone o Chrome en Android) para poder usar el escáner.");
+          return;
+        }
+
         const modal = document.getElementById("scanner-modal");
-        modal.style.display = "flex";
         
-        // Crear instancia del lector
-        html5QrCode = new Html5Qrcode("reader");
-        
-        const config = { fps: 15, qrbox: { width: 250, height: 250 } };
-        
-        html5QrCode.start(
-          { facingMode: "environment" },
-          config,
-          (decodedText) => {
-            // Escaneo exitoso
-            stopCameraScanner();
-            
-            let parsedFolio = decodedText.trim();
-            try {
-              if (decodedText.includes("folio=")) {
-                const urlParams = new URL(decodedText).searchParams;
-                parsedFolio = urlParams.get("folio") || decodedText;
-              } else if (decodedText.includes("?")) {
-                const urlParams = new URLSearchParams(decodedText.split("?")[1]);
-                parsedFolio = urlParams.get("folio") || decodedText;
+        try {
+          // Crear instancia del lector
+          html5QrCode = new Html5Qrcode("reader");
+          
+          const config = { fps: 15, qrbox: { width: 250, height: 250 } };
+          
+          // Mostrar el modal
+          modal.style.display = "flex";
+          
+          html5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText) => {
+              // Escaneo exitoso
+              stopCameraScanner();
+              
+              let parsedFolio = decodedText.trim();
+              try {
+                if (decodedText.includes("folio=")) {
+                  const urlParams = new URL(decodedText).searchParams;
+                  parsedFolio = urlParams.get("folio") || decodedText;
+                } else if (decodedText.includes("?")) {
+                  const urlParams = new URLSearchParams(decodedText.split("?")[1]);
+                  parsedFolio = urlParams.get("folio") || decodedText;
+                }
+              } catch(e) {
+                // No era URL válida
               }
-            } catch(e) {
-              // No era URL válida
+              
+              parsedFolio = parsedFolio.trim().toUpperCase();
+              window.location.search = `?folio=${encodeURIComponent(parsedFolio)}`;
+            },
+            (errorMessage) => {
+              // Silencioso
             }
-            
-            parsedFolio = parsedFolio.trim().toUpperCase();
-            window.location.search = `?folio=${encodeURIComponent(parsedFolio)}`;
-          },
-          (errorMessage) => {
-            // Silencioso
-          }
-        ).catch(err => {
-          alert("Error de cámara: Asegúrate de habilitar los permisos de cámara en tu navegador para el control de acceso.\nDetalle: " + err);
-          stopCameraScanner();
-        });
+          ).catch(err => {
+            console.error("Error al iniciar cámara:", err);
+            alert("⚠️ Error de acceso a cámara:\n\nAsegúrate de otorgar los permisos de cámara en la barra de tu navegador.\n\nSi estás usando un navegador integrado (Telegram/Facebook/etc.), copia este enlace y ábrelo en Safari o Google Chrome.");
+            stopCameraScanner();
+          });
+        } catch (err) {
+          console.error("Excepción al inicializar escáner:", err);
+          alert("⚠️ Error al inicializar el escáner: " + err.message);
+          if (modal) modal.style.display = "none";
+        }
       }
 
       // Detener el escáner
