@@ -281,8 +281,9 @@ function App() {
           <p className="hero-tag">
             <i className="fa-solid fa-star"></i> Evento de Networking de Alto Nivel
           </p>
-          <h1 className="hero-title" style={{ fontSize: '3.3rem' }}>
-            CONEXIÓN Y NEGOCIOS <span>NETWORKING</span>
+          <h1 className="hero-title" style={{ fontSize: '3.3rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            CONEXIÓN Y NEGOCIOS 
+            <img src="networking-title.png" alt="Networking" style={{ width: '100%', maxWidth: '600px', objectFit: 'contain', marginTop: '0.5rem' }} />
           </h1>
           <p className="hero-subtitle">
             ¡Hola! Gracias por tu interés en nuestro evento exclusivo de networking. Te invitamos a una experiencia diseñada para conectar con empresarios, líderes y profesionales en un ambiente relajado, selecto y estratégico en Querétaro.
