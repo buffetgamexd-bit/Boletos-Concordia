@@ -190,6 +190,23 @@ function App() {
                     <strong style={{ fontSize: '13px', color: '#fff' }}>3 Jun 2026 | 7:00 PM</strong>
                   </div>
                 </div>
+
+                {/* CÓDIGO QR EN LA INTERFAZ DE ÉXITO */}
+                <div style={{ gridColumn: 'span 2', textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    TU CÓDIGO QR DE ACCESO VIP
+                  </span>
+                  <div style={{ background: '#fff', padding: '0.8rem', display: 'inline-block', borderRadius: '12px' }}>
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(window.location.origin + '/validar?folio=' + successData.folio)}`} 
+                      alt="Código QR de Acceso" 
+                      style={{ width: '150px', height: '150px', display: 'block' }} 
+                    />
+                  </div>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '1rem' }}>
+                    Presenta este QR al staff en la entrada del evento.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -414,6 +431,14 @@ function App() {
           <a href="https://www.facebook.com/ConcordiaProducciones/" target="_blank" className="footer-social-link"><i className="fa-brands fa-facebook"></i></a>
           <a href="https://www.instagram.com/concordiaproducciones/" target="_blank" className="footer-social-link"><i className="fa-brands fa-instagram"></i></a>
           <a href="https://www.youtube.com/@concordiaproducciones" target="_blank" className="footer-social-link"><i className="fa-brands fa-youtube"></i></a>
+        </div>
+        
+        {/* BOTÓN INFERIOR DE ACCESO PARA STAFF (VALIDAR QRS) */}
+        <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(212, 175, 55, 0.2)', paddingTop: '1.5rem' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>¿Eres parte del Staff de Concordia?</p>
+          <a href="/validar" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem', display: 'inline-flex', background: 'transparent', border: '1px solid var(--gold-primary)' }}>
+            <i className="fa-solid fa-qrcode" style={{ marginRight: '0.5rem' }}></i> Escanear e Inhabilitar Boletos
+          </a>
         </div>
       </footer>
 

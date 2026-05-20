@@ -336,7 +336,7 @@ app.post('/send-confirmacion', async (req, res) => {
             <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; margin-top: 20px; text-align: center;">
               <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block; margin-bottom: 12px; letter-spacing: 2px;">CÓDIGO QR DE ACCESO PERSONAL</span>
               <div style="background-color: #ffffff; padding: 12px; display: inline-block; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                <img src="cid:concordiaqr" alt="Código QR de Validación" style="width: 150px; height: 150px; display: block;" />
+                <img src="${qrUrl}" alt="Código QR de Validación" style="width: 150px; height: 150px; display: block;" />
               </div>
               <p style="color: #9ca3af; font-size: 11px; margin: 10px 0 0 0; line-height: 1.4;">
                 Presenta este código QR en tu celular para ingresar al evento.<br />
@@ -371,12 +371,6 @@ app.post('/send-confirmacion', async (req, res) => {
             filename: 'logo.png',
             path: path.join(__dirname, '..', 'logo.png'),
             cid: 'concordialogo',
-            contentDisposition: 'inline'
-          },
-          {
-            filename: 'qr.png',
-            path: qrUrl,
-            cid: 'concordiaqr',
             contentDisposition: 'inline'
           }
         ]
