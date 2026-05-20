@@ -1,23 +1,18 @@
-// Componente de Logotipo Vectorial Concordia (Alta Definición)
+// Componente de Logotipo Oficial de Concordia
 function ConcordiaLogo({ width = 200, height = 80 }) {
   return (
-    <svg width={width} height={height} viewBox="0 0 280 110" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block', margin: '0 auto' }}>
-      {/* Icono de Órbitas Cruzadas */}
-      <g transform="translate(140, 32)">
-        {/* Órbita 1 (30 grados) */}
-        <ellipse cx="0" cy="0" rx="34" ry="13" fill="none" stroke="#d4af37" strokeWidth="2.5" transform="rotate(30)" />
-        {/* Órbita 2 (90 grados) */}
-        <ellipse cx="0" cy="0" rx="34" ry="13" fill="none" stroke="#d4af37" strokeWidth="2.5" transform="rotate(90)" />
-        {/* Órbita 3 (150 grados) */}
-        <ellipse cx="0" cy="0" rx="34" ry="13" fill="none" stroke="#d4af37" strokeWidth="2.5" transform="rotate(150)" />
-        {/* Triángulo central de Play */}
-        <polygon points="-4.5,-7.5 9,0 -4.5,7.5" fill="#d4af37" />
-      </g>
-      {/* Texto de Marca Principal */}
-      <text x="140" y="86" textAnchor="middle" fill="#ffffff" fontSize="23" fontWeight="bold" letterSpacing="4" fontFamily="'Outfit', sans-serif">CONCORDIA</text>
-      {/* Subtexto */}
-      <text x="140" y="101" textAnchor="middle" fill="#d4af37" fontSize="8.5" fontWeight="500" letterSpacing="5" fontFamily="'Outfit', sans-serif">JONES AUDIO</text>
-    </svg>
+    <img 
+      src="logo.png" 
+      alt="Concordia Jones Audio Logo" 
+      style={{ 
+        width: width, 
+        height: 'auto', 
+        maxHeight: height,
+        display: 'block', 
+        margin: '0 auto',
+        objectFit: 'contain'
+      }} 
+    />
   );
 }
 
@@ -307,10 +302,15 @@ function App() {
             <h3 className="ticket-title">Acceso Personal VIP</h3>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Incluye registro, cena y actividades de valor</p>
             
-            <div className="ticket-pricing">
-              <span className="ticket-price-currency">$</span>
-              <span className="ticket-price-amount">1,500</span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginLeft: '0.5rem' }}>MXN / persona</span>
+            <div className="ticket-pricing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0' }}>
+              <div style={{ textDecoration: 'line-through', color: 'rgba(255, 255, 255, 0.4)', fontSize: '1.15rem', marginBottom: '0.2rem', fontWeight: '500' }}>
+                $1,500 MXN
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center' }}>
+                <span className="ticket-price-currency" style={{ color: 'var(--gold-glow)', fontSize: '1.6rem', marginRight: '0.1rem' }}>$</span>
+                <span className="ticket-price-amount" style={{ color: 'var(--gold-glow)', fontSize: '3.2rem', fontWeight: '800', lineHeight: 1 }}>1,300</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginLeft: '0.5rem' }}>MXN / persona</span>
+              </div>
             </div>
           </div>
 
@@ -403,7 +403,7 @@ function App() {
       {/* BOTÓN MÓVIL PEGAJOSO DE LLAMADA A LA ACCIÓN */}
       <div className="mobile-sticky-btn">
         <button className="btn-primary" onClick={() => setModalOpen(true)}>
-          <i className="fa-solid fa-ticket"></i> Inscribirme — $1,500 MXN
+          <i className="fa-solid fa-ticket"></i> Inscribirme — $1,300 MXN
         </button>
       </div>
 
@@ -522,7 +522,7 @@ function App() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(212, 175, 55, 0.05)', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.1)', marginBottom: '2rem' }}>
                 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Monto Total:</span>
                 <strong style={{ fontSize: '1.4rem', color: 'var(--gold-glow)' }}>
-                  $MXN {(formData.qty * 1500).toLocaleString('es-MX')}
+                  $MXN {(formData.qty * 1300).toLocaleString('es-MX')}
                 </strong>
               </div>
 

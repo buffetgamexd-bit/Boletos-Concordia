@@ -8,7 +8,7 @@ const { google } = require('googleapis');
 const fs = require('fs');
 
 // ============ GOOGLE SHEETS ============
-const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+const SHEET_ID = process.env.GOOGLE_SHEET_ID || '131iQlWoFgxbIbuyJ7JxflCBAZnuef43EDSQdWd_9s6Y';
 const SHEET_TAB = 'BoletosNetworking';
 
 async function getSheetsClient() {
@@ -52,8 +52,8 @@ async function appendBoletoToSheet(data) {
   try {
     const sheets = await getSheetsClient();
     await ensureSheetTab(sheets, SHEET_ID, SHEET_TAB, [
-      'Fecha', 
       'Folio', 
+      'Fecha', 
       'Cliente', 
       'Email', 
       'Negocio', 
@@ -70,8 +70,8 @@ async function appendBoletoToSheet(data) {
       insertDataOption: 'INSERT_ROWS',
       requestBody: {
         values: [[
-          fecha, 
           data.folio, 
+          fecha, 
           data.nombreCompleto, 
           data.email, 
           data.negocio, 
@@ -134,7 +134,7 @@ app.post('/create-checkout-session', async (req, res) => {
             name: 'Boleto Acceso VIP — Conexión y Negocios',
             description: 'Experiencia exclusiva de networking: Coctelería, Cena de 3 tiempos, Networking de alto valor y oportunidad de proyectar slide corporativa. Club Altozano, 3 de Junio, 7:00 PM.',
           },
-          unit_amount: 150000, // $1,500.00 MXN en centavos
+          unit_amount: 130000, // $1,300.00 MXN en centavos
         },
         quantity: quantity,
       }],
@@ -300,14 +300,6 @@ app.post('/send-confirmacion', async (req, res) => {
               </div>
             </div>
 
-          </div>
-
-          <!-- Código QR de Entrada -->
-          <div style="text-align: center; margin: 30px 0;">
-            <div style="background-color: #ffffff; padding: 15px; display: inline-block; border-radius: 12px; border: 2px solid #d4af37;">
-              <img src="${qrUrl}" style="width: 140px; height: 140px; display: block;" alt="Código QR de Acceso" />
-            </div>
-            <p style="color: #9ca3af; font-size: 11px; margin-top: 8px;">Presenta este código QR en la entrada para registrar tu acceso rápidamente.</p>
           </div>
 
           <!-- Nota informativa de ubicación -->
