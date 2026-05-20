@@ -11,6 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <!-- Lector QR por Cámara (HTML5 QR Code) -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
   <style>
     :root {
       --bg-dark: #0a0b0e;
@@ -341,6 +344,22 @@
 </head>
 <body>
 
+  <!-- Modal del Escáner de Cámara -->
+  <div id="scanner-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 11, 14, 0.98); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem;">
+    <div style="width: 100%; max-width: 450px; text-align: center; position: relative;">
+      <h3 style="font-family: var(--font-serif); color: var(--gold-solid); font-size: 1.6rem; margin-bottom: 0.5rem; text-transform: uppercase;">Escaneando Boleto VIP</h3>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; letter-spacing: 1px;">Apunta tu cámara trasera hacia el código QR de acceso</p>
+      
+      <!-- Contenedor del Lector -->
+      <div id="reader" style="width: 100%; border-radius: 24px; overflow: hidden; border: 1px solid var(--border-gold); box-shadow: 0 20px 50px rgba(0,0,0,0.8); background: #000; position: relative;"></div>
+      
+      <!-- Botón para Cancelar -->
+      <button id="btn-close-scanner" style="margin-top: 2rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); font-family: var(--font-sans); font-weight: 600; font-size: 0.95rem; padding: 0.9rem 2.5rem; border-radius: 16px; cursor: pointer; transition: all 0.3s ease; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.8rem;">
+        <i class="fa-solid fa-xmark"></i> Cancelar y Volver
+      </button>
+    </div>
+  </div>
+
   <div class="container">
     
     <!-- Encabezado de la marca -->
@@ -378,8 +397,11 @@
       const loader = document.getElementById("loader");
       const dynamicContent = document.getElementById("dynamic-content");
 
+      // Registrar botón para cerrar cámara del escáner
+      document.getElementById("btn-close-scanner").addEventListener("click", stopCameraScanner);
+
       if (!folio) {
-        showError("✕ URL INVÁLIDA", "No se especificó ningún Folio de boleto para validar. Asegúrate de escanear el código QR oficial del evento.");
+        showStaffDashboard();
         return;
       }
 
@@ -431,8 +453,11 @@
           `;
 
           buttonHtml = `
-            <button class="btn-action" disabled>
+            <button class="btn-action" disabled style="margin-bottom: 1rem;">
               <i class="fa-solid fa-ban"></i> Acceso No Permitido
+            </button>
+            <button class="btn-action btn-scan-next" id="btn-scan-next" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none;">
+              <i class="fa-solid fa-camera"></i> Escanear Otro QR
             </button>
           `;
 
@@ -494,6 +519,14 @@
             inhabilitarBoleto(boleto.folio);
           });
         }
+
+        // Añadir evento al botón de escanear siguiente si está en la vista
+        const btnScanNext = document.getElementById("btn-scan-next");
+        if (btnScanNext) {
+          btnScanNext.addEventListener("click", () => {
+            startCameraScanner();
+          });
+        }
       }
 
       // Llamar al backend para inhabilitar
@@ -553,10 +586,18 @@
             </strong>
           </div>
 
-          <button class="btn-action" style="background: rgba(16, 185, 129, 0.1); border-color: var(--emerald); color: var(--emerald); cursor: default;">
+          <button class="btn-action" style="background: rgba(16, 185, 129, 0.1); border-color: var(--emerald); color: var(--emerald); cursor: default; margin-bottom: 1rem;">
             <i class="fa-solid fa-circle-check"></i> Ingreso Completado
           </button>
+
+          <button class="btn-action" id="btn-scan-next" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none;">
+            <i class="fa-solid fa-camera"></i> Escanear Otro QR
+          </button>
         `;
+
+        document.getElementById("btn-scan-next").addEventListener("click", () => {
+          startCameraScanner();
+        });
       }
 
       // Mostrar Alerta de Error
@@ -580,10 +621,132 @@
             </p>
           </div>
 
-          <button class="btn-action" onclick="window.location.reload();">
-            <i class="fa-solid fa-rotate"></i> Reintentar Escaneo
+          <button class="btn-action" id="btn-scan-next" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none; margin-bottom: 1rem;">
+            <i class="fa-solid fa-camera"></i> Escanear Otro QR
+          </button>
+
+          <button class="btn-action" onclick="window.location.reload();" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted);">
+            <i class="fa-solid fa-rotate"></i> Reintentar Carga
           </button>
         `;
+
+        document.getElementById("btn-scan-next").addEventListener("click", () => {
+          startCameraScanner();
+        });
+      }
+
+      // Variable para control del escáner
+      let html5QrCode = null;
+
+      // Iniciar el escáner de cámara trasera
+      function startCameraScanner() {
+        const modal = document.getElementById("scanner-modal");
+        modal.style.display = "flex";
+        
+        // Crear instancia del lector
+        html5QrCode = new Html5Qrcode("reader");
+        
+        const config = { fps: 15, qrbox: { width: 250, height: 250 } };
+        
+        html5QrCode.start(
+          { facingMode: "environment" },
+          config,
+          (decodedText) => {
+            // Escaneo exitoso
+            stopCameraScanner();
+            
+            let parsedFolio = decodedText.trim();
+            try {
+              if (decodedText.includes("folio=")) {
+                const urlParams = new URL(decodedText).searchParams;
+                parsedFolio = urlParams.get("folio") || decodedText;
+              } else if (decodedText.includes("?")) {
+                const urlParams = new URLSearchParams(decodedText.split("?")[1]);
+                parsedFolio = urlParams.get("folio") || decodedText;
+              }
+            } catch(e) {
+              // No era URL válida
+            }
+            
+            parsedFolio = parsedFolio.trim().toUpperCase();
+            window.location.search = `?folio=${encodeURIComponent(parsedFolio)}`;
+          },
+          (errorMessage) => {
+            // Silencioso
+          }
+        ).catch(err => {
+          alert("Error de cámara: Asegúrate de habilitar los permisos de cámara en tu navegador para el control de acceso.\nDetalle: " + err);
+          stopCameraScanner();
+        });
+      }
+
+      // Detener el escáner
+      function stopCameraScanner() {
+        const modal = document.getElementById("scanner-modal");
+        modal.style.display = "none";
+        if (html5QrCode) {
+          html5QrCode.stop().then(() => {
+            html5QrCode = null;
+          }).catch(err => {
+            console.error("Error stopping scanner:", err);
+            html5QrCode = null;
+          });
+        }
+      }
+
+      // Panel principal de control de accesos (Dashboard del Staff)
+      function showStaffDashboard() {
+        loader.style.display = "none";
+        dynamicContent.style.display = "block";
+        
+        dynamicContent.innerHTML = `
+          <div style="padding: 1rem 0; text-align: center;">
+            <i class="fa-solid fa-qrcode" style="font-size: 3.5rem; color: var(--gold-solid); margin-bottom: 1.5rem; filter: drop-shadow(0 0 10px rgba(212,175,55,0.3)); animate: pulse 2s infinite;"></i>
+            <h2 style="font-family: var(--font-serif); color: #fff; font-size: 1.6rem; margin-bottom: 0.5rem; text-transform: uppercase;">
+              Control de Accesos
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 2rem;">
+              Bienvenido al panel de staff de Concordia Producciones. Escanea un QR de boleto o introduce su folio manualmente.
+            </p>
+
+            <button class="btn-action" id="btn-scan-dashboard" style="background: linear-gradient(135deg, #d4af37 0%, #aa8416 100%); color: #0a0b0e; border: none; margin-bottom: 1.5rem;">
+              <i class="fa-solid fa-camera"></i> Iniciar Cámara de Escaneo
+            </button>
+
+            <div style="margin: 1.5rem 0; display: flex; align-items: center; justify-content: center; gap: 1rem;">
+              <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.08);"></div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">o buscar por folio</span>
+              <div style="flex: 1; height: 1px; background: rgba(255,255,255,0.08);"></div>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+              <input type="text" id="input-manual-folio" placeholder="Ej. 4OF8WBH1" maxlength="15" style="flex: 1; background: rgba(255,255,255,0.03); border: 1px solid var(--border-gold); border-radius: 12px; padding: 0.8rem 1rem; color: #fff; font-family: var(--font-sans); text-align: center; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; font-size: 1rem; outline: none;">
+              <button id="btn-manual-verify" style="background: var(--gold-solid); color: #000; border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">
+                Verificar
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Registrar eventos en el dashboard
+        document.getElementById("btn-scan-dashboard").addEventListener("click", startCameraScanner);
+
+        const btnManualVerify = document.getElementById("btn-manual-verify");
+        const inputManualFolio = document.getElementById("input-manual-folio");
+
+        const verifyManual = () => {
+          const code = inputManualFolio.value.trim().toUpperCase();
+          if (!code) {
+            alert("Por favor, ingresa un folio válido.");
+            return;
+          }
+          window.location.search = `?folio=${encodeURIComponent(code)}`;
+        };
+
+        btnManualVerify.addEventListener("click", verifyManual);
+        inputManualFolio.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") verifyManual();
+        });
       }
     });
   </script>
