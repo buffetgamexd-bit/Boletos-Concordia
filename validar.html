@@ -390,6 +390,9 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // Variable global para control de escáner declarada al inicio para evitar TDZ en early returns
+      let html5QrCode = null;
+
       // 1. Obtener Folio desde los parámetros URL
       const params = new URLSearchParams(window.location.search);
       const folio = params.get("folio");
@@ -665,9 +668,6 @@
           startCameraScanner();
         });
       }
-
-      // Variable para control del escáner
-      let html5QrCode = null;
 
       // Iniciar el escáner de cámara trasera con verificación WebRTC y in-app browsers
       function startCameraScanner() {
