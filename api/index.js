@@ -12,6 +12,28 @@ const SHEET_ID = process.env.GOOGLE_SHEET_ID || '131iQlWoFgxbIbuyJ7JxflCBAZnuef4
 const SHEET_TAB = 'BoletosNetworking';
 
 async function getSheetsClient() {
+  // Intentar cargar desde cualquier archivo JSON de credenciales local en el directorio padre
+  try {
+    const parentDir = path.join(__dirname, '..');
+    const files = fs.readdirSync(parentDir);
+    const credentialFile = files.find(f => f.startsWith('boletos-concordia-') && f.endsWith('.json'));
+    if (credentialFile) {
+      const jsonPath = path.join(parentDir, credentialFile);
+      const credentials = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+      if (credentials.client_email && credentials.private_key) {
+        const auth = new google.auth.JWT({
+          email: credentials.client_email,
+          key: credentials.private_key,
+          scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
+        return google.sheets({ version: 'v4', auth });
+      }
+    }
+  } catch (e) {
+    console.warn('Advertencia al cargar archivo de credenciales local:', e.message);
+  }
+
+  // Fallback a las variables de entorno (.env)
   const auth = new google.auth.JWT({
     email: process.env.GOOGLE_SERVICE_EMAIL,
     key: (process.env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n').replace(/"/g, ''),
@@ -231,6 +253,7 @@ app.post('/send-confirmacion', async (req, res) => {
         
         <!-- Encabezado VIP -->
         <div style="background: linear-gradient(135deg, #181a22 0%, #111319 100%); padding: 30px; text-align: center; border-bottom: 2px dashed rgba(212, 175, 55, 0.3); position: relative;">
+          <img src="cid:concordialogo" alt="Concordia Producciones" style="max-height: 70px; margin-bottom: 12px; display: inline-block;" />
           <h2 style="color: #d4af37; margin: 0; font-size: 24px; font-family: 'Playfair Display', Georgia, serif; letter-spacing: 2px; text-transform: uppercase;">CONCORDIA PRODUCCIONES</h2>
           <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 11px; letter-spacing: 4px; text-transform: uppercase;">VIP BOARDING PASS • ACCESO EXCLUSIVO</p>
         </div>
@@ -322,6 +345,13 @@ app.post('/send-confirmacion', async (req, res) => {
         to: clienteEmail,
         subject: `🎟️ Tu Boleto VIP Confirmado - Folio #${folio} - Concordia Producciones`,
         html: emailCompradorHtml,
+        attachments: [
+          {
+            filename: 'logo.png',
+            path: path.join(__dirname, '..', 'logo.png'),
+            cid: 'concordialogo'
+          }
+        ]
       }).catch(e => console.error('Error al enviar correo al comprador:', e.message));
     }
 
@@ -329,50 +359,55 @@ app.post('/send-confirmacion', async (req, res) => {
     const merchantEmail = process.env.MERCHANT_EMAIL || process.env.GMAIL_USER;
     if (merchantEmail) {
       const emailMerchantHtml = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
-        <h2 style="color: #00b074;">🛒 ¡Nueva Venta de Boleto! (#${folio})</h2>
-        <p>Se ha registrado un pago exitoso por medio de Stripe para el Evento de Networking.</p>
-        
-        <table style="width:100%; border:1px solid #ddd; border-collapse:collapse; margin-top:20px;">
-          <tr style="background:#f9f9f9;">
-            <th style="padding:10px; border:1px solid #ddd; text-align:left;">Campo</th>
-            <th style="padding:10px; border:1px solid #ddd; text-align:left;">Detalle</th>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Folio de Venta</strong></td>
-            <td style="padding:10px; border:1px solid #ddd; color:#d4af37; font-weight:bold;">#${folio}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Cliente</strong></td>
-            <td style="padding:10px; border:1px solid #ddd; font-weight:bold;">${clienteNombre}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Email</strong></td>
-            <td style="padding:10px; border:1px solid #ddd;"><a href="mailto:${clienteEmail}">${clienteEmail}</a></td>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Teléfono</strong></td>
-            <td style="padding:10px; border:1px solid #ddd;">${clienteTelefono}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Negocio / Marca</strong></td>
-            <td style="padding:10px; border:1px solid #ddd;">${clienteNegocio}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Giro Comercial</strong></td>
-            <td style="padding:10px; border:1px solid #ddd;">${clienteGiro}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Cantidad Boletos</strong></td>
-            <td style="padding:10px; border:1px solid #ddd; font-weight:bold;">${cantidad}</td>
-          </tr>
-          <tr>
-            <td style="padding:10px; border:1px solid #ddd;"><strong>Monto Pagado</strong></td>
-            <td style="padding:10px; border:1px solid #ddd; color:#00b074; font-weight:bold;">$${total.toLocaleString('es-MX')} MXN</td>
-          </tr>
-        </table>
-        
-        <p style="margin-top:20px; font-size:12px; color:#666;">Este registro ya ha sido añadido automáticamente a la pestaña <strong>${SHEET_TAB}</strong> en tu Google Sheets.</p>
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+        <div style="background-color: #0a0b0e; padding: 20px; text-align: center;">
+          <img src="cid:concordialogo" alt="Concordia Producciones" style="max-height: 50px;" />
+        </div>
+        <div style="padding: 20px;">
+          <h2 style="color: #00b074; margin-top: 0;">🛒 ¡Nueva Venta de Boleto! (#${folio})</h2>
+          <p>Se ha registrado un pago exitoso por medio de Stripe para el Evento de Networking.</p>
+          
+          <table style="width:100%; border:1px solid #ddd; border-collapse:collapse; margin-top:20px;">
+            <tr style="background:#f9f9f9;">
+              <th style="padding:10px; border:1px solid #ddd; text-align:left;">Campo</th>
+              <th style="padding:10px; border:1px solid #ddd; text-align:left;">Detalle</th>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Folio de Venta</strong></td>
+              <td style="padding:10px; border:1px solid #ddd; color:#d4af37; font-weight:bold;">#${folio}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Cliente</strong></td>
+              <td style="padding:10px; border:1px solid #ddd; font-weight:bold;">${clienteNombre}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Email</strong></td>
+              <td style="padding:10px; border:1px solid #ddd;"><a href="mailto:${clienteEmail}">${clienteEmail}</a></td>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Teléfono</strong></td>
+              <td style="padding:10px; border:1px solid #ddd;">${clienteTelefono}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Negocio / Marca</strong></td>
+              <td style="padding:10px; border:1px solid #ddd;">${clienteNegocio}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Giro Comercial</strong></td>
+              <td style="padding:10px; border:1px solid #ddd;">${clienteGiro}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Cantidad Boletos</strong></td>
+              <td style="padding:10px; border:1px solid #ddd; font-weight:bold;">${cantidad}</td>
+            </tr>
+            <tr>
+              <td style="padding:10px; border:1px solid #ddd;"><strong>Monto Pagado</strong></td>
+              <td style="padding:10px; border:1px solid #ddd; color:#00b074; font-weight:bold;">$${total.toLocaleString('es-MX')} MXN</td>
+            </tr>
+          </table>
+          
+          <p style="margin-top:20px; font-size:12px; color:#666;">Este registro ya ha sido añadido automáticamente a la pestaña <strong>${SHEET_TAB}</strong> en tu Google Sheets.</p>
+        </div>
       </div>
       `;
 
@@ -381,6 +416,13 @@ app.post('/send-confirmacion', async (req, res) => {
         to: merchantEmail,
         subject: `🔔 Venta Boleto #${folio} - ${clienteNombre} ($${total.toLocaleString('es-MX')} MXN)`,
         html: emailMerchantHtml,
+        attachments: [
+          {
+            filename: 'logo.png',
+            path: path.join(__dirname, '..', 'logo.png'),
+            cid: 'concordialogo'
+          }
+        ]
       }).catch(e => console.error('Error al enviar correo al comerciante:', e.message));
     }
 
