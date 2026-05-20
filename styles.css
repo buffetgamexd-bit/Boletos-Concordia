@@ -7,16 +7,16 @@
   --bg-dark: #ffffff;
   --bg-card: #ffffff;
   --bg-glass: rgba(245, 245, 245, 0.8);
-  --gold-primary: #c49a4a;
-  --gold-glow: #e0b462;
-  --gold-dark: #aa7f33;
-  --emerald-primary: #2563eb;
-  --emerald-hover: #1d4ed8;
+  --gold-primary: #1874c1;
+  --gold-glow: #1f8cf3;
+  --gold-dark: #12558c;
+  --emerald-primary: #1874c1;
+  --emerald-hover: #12558c;
   --text-main: #111827;
   --text-muted: #4b5563;
-  --text-gold: #c49a4a;
-  --border-glass: rgba(196, 154, 74, 0.2);
-  --border-glass-focus: rgba(196, 154, 74, 0.5);
+  --text-gold: #1874c1;
+  --border-glass: rgba(24, 116, 193, 0.2);
+  --border-glass-focus: rgba(24, 116, 193, 0.5);
   
   /* Fuentes */
   --font-sans: 'League Spartan', sans-serif;
@@ -104,6 +104,7 @@ body {
   top: 0;
   left: 0;
   z-index: 10;
+  background: #000000;
 }
 
 .logo-container {
