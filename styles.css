@@ -3,28 +3,35 @@
    ========================================================================= */
 
 :root {
-  /* Paleta de colores VIP */
-  --bg-dark: #0a0b0e;
-  --bg-card: rgba(18, 20, 26, 0.65);
-  --bg-glass: rgba(25, 28, 38, 0.4);
-  --gold-primary: #d4af37;
-  --gold-glow: #e5c158;
-  --gold-dark: #aa8417;
-  --emerald-primary: #00b074;
-  --emerald-hover: #00d98f;
-  --text-main: #f3f4f6;
-  --text-muted: #9ca3af;
-  --text-gold: #f3e5ab;
-  --border-glass: rgba(212, 175, 55, 0.15);
-  --border-glass-focus: rgba(212, 175, 55, 0.4);
+  /* Paleta de colores VIP (Modificada para fondo blanco) */
+  --bg-dark: #ffffff;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(245, 245, 245, 0.8);
+  --gold-primary: #c49a4a;
+  --gold-glow: #e0b462;
+  --gold-dark: #aa7f33;
+  --emerald-primary: #2563eb;
+  --emerald-hover: #1d4ed8;
+  --text-main: #111827;
+  --text-muted: #4b5563;
+  --text-gold: #c49a4a;
+  --border-glass: rgba(196, 154, 74, 0.2);
+  --border-glass-focus: rgba(196, 154, 74, 0.5);
   
   /* Fuentes */
-  --font-sans: 'Outfit', sans-serif;
-  --font-serif: 'Playfair Display', serif;
+  --font-sans: 'League Spartan', sans-serif;
+  --font-serif: 'League Spartan', serif;
   
   /* Transiciones */
   --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-fast: all 0.2s ease;
+}
+
+@font-face {
+  font-family: 'League Spartan';
+  src: url('LeagueSpartan-Bold (1).otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
 }
 
 /* 1. RESET Y AJUSTES GENERALES */
@@ -55,7 +62,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 0);
+  background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0);
   background-size: 24px 24px;
   pointer-events: none;
   z-index: 1;
@@ -204,7 +211,7 @@ body {
 
 .hero-title span {
   display: block;
-  background: linear-gradient(135deg, #ffffff 30%, var(--gold-glow) 100%);
+  background: linear-gradient(135deg, var(--text-main) 30%, var(--gold-primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -350,8 +357,8 @@ body {
 /* Botones Premium */
 .btn-primary {
   width: 100%;
-  background: linear-gradient(135deg, var(--gold-primary), var(--gold-dark));
-  color: #000000;
+  background: var(--emerald-primary);
+  color: #ffffff;
   border: none;
   padding: 1.1rem 2rem;
   border-radius: 12px;
@@ -362,16 +369,16 @@ body {
   justify-content: center;
   align-items: center;
   gap: 0.8rem;
-  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.2);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
   transition: var(--transition-smooth);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--gold-glow), var(--gold-primary));
+  background: var(--emerald-hover);
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.35);
 }
 
 .btn-primary:active {
@@ -379,14 +386,14 @@ body {
 }
 
 .btn-emerald {
-  background: linear-gradient(135deg, var(--emerald-primary), #008758);
+  background: var(--emerald-primary);
   color: white;
-  box-shadow: 0 10px 25px rgba(0, 176, 116, 0.2);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
 }
 
 .btn-emerald:hover {
-  background: linear-gradient(135deg, var(--emerald-hover), var(--emerald-primary));
-  box-shadow: 0 15px 30px rgba(0, 176, 116, 0.35);
+  background: var(--emerald-hover);
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.35);
 }
 
 /* Lista de Beneficios en Ticket */
@@ -498,7 +505,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(5, 6, 8, 0.85);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   display: flex;
   justify-content: center;
@@ -509,7 +516,7 @@ body {
 }
 
 .modal-container {
-  background: #111319;
+  background: #ffffff;
   border: 1px solid var(--border-glass);
   border-radius: 24px;
   width: 100%;
@@ -569,8 +576,8 @@ body {
 
 .form-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   padding: 0.9rem 1.2rem;
   border-radius: 10px;
   color: var(--text-main);
@@ -581,7 +588,7 @@ body {
 .form-input:focus {
   outline: none;
   border-color: var(--gold-primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.05);
   box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);
 }
 
@@ -602,8 +609,8 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   padding: 0.5rem 1rem;
   border-radius: 10px;
   width: fit-content;
@@ -680,11 +687,11 @@ body {
 
 /* Boleto Virtual Boarding Pass */
 .boarding-pass {
-  background: #111319;
+  background: #ffffff;
   border: 2px solid var(--gold-primary);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
   margin-bottom: 2.5rem;
   text-align: left;
   position: relative;
@@ -712,9 +719,9 @@ body {
 }
 
 .pass-header {
-  background: linear-gradient(135deg, #181a22 0%, #111319 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
   padding: 1.5rem;
-  border-bottom: 1px dashed rgba(212, 175, 55, 0.3);
+  border-bottom: 1px dashed rgba(196, 154, 74, 0.3);
   display: flex;
   justify-content: space-between;
   align-items: center;

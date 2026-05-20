@@ -180,19 +180,19 @@ function App() {
                   <p className="pass-field-value">$MXN {successData.total.toLocaleString('es-MX')}</p>
                 </div>
                 
-                <div className="pass-footer" style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1.5rem', marginTop: '1rem' }}>
+                <div className="pass-footer" style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(0, 0, 0, 0.05)', paddingTop: '1.5rem', marginTop: '1rem' }}>
                   <div>
                     <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>📍 UBICACIÓN</span>
-                    <strong style={{ fontSize: '13px', color: '#fff' }}>Club Altozano Qro.</strong>
+                    <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>Club Altozano Qro.</strong>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', textTransform: 'uppercase' }}>🗓️ FECHA Y HORA</span>
-                    <strong style={{ fontSize: '13px', color: '#fff' }}>3 Jun 2026 | 7:00 PM</strong>
+                    <strong style={{ fontSize: '13px', color: 'var(--text-main)' }}>3 Jun 2026 | 7:00 PM</strong>
                   </div>
                 </div>
 
                 {/* CÓDIGO QR EN LA INTERFAZ DE ÉXITO */}
-                <div style={{ gridColumn: 'span 2', textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                <div style={{ gridColumn: 'span 2', textAlign: 'center', marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(0, 0, 0, 0.05)' }}>
                   <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block', marginBottom: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {successData.cantidad === 1 ? 'TU CÓDIGO QR DE ACCESO VIP PERSONAL' : `TU CÓDIGO QR DE ACCESO VIP GRUPAL (${successData.cantidad} PERSONAS)`}
                   </span>
@@ -314,7 +314,7 @@ function App() {
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Incluye registro, cena y actividades de valor</p>
             
             <div className="ticket-pricing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0' }}>
-              <div style={{ textDecoration: 'line-through', color: 'rgba(255, 255, 255, 0.4)', fontSize: '1.15rem', marginBottom: '0.2rem', fontWeight: '500' }}>
+              <div style={{ textDecoration: 'line-through', color: 'rgba(0, 0, 0, 0.4)', fontSize: '1.15rem', marginBottom: '0.2rem', fontWeight: '500' }}>
                 $1,500 MXN
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center' }}>
@@ -544,7 +544,7 @@ function App() {
               </div>
 
               {/* SELECTOR DE CANTIDAD INTERACTIVO */}
-              <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', marginTop: '1.5rem' }}>
+              <div className="form-group" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '1.5rem', marginTop: '1.5rem' }}>
                 <div>
                   <label className="form-label" style={{ margin: 0 }}>Cantidad de Boletos</label>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Máx 10 boletos por transacción</p>
