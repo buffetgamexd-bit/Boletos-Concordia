@@ -339,6 +339,29 @@ function App() {
         </div>
       </main>
 
+      {/* SECCIÓN ILUSTRACIÓN DEL EVENTO */}
+      <section className="event-illustration-section" style={{ margin: '4rem 0' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '3rem', alignItems: 'center' }}>
+          <div style={{ position: 'relative', borderRadius: '20px', overflow: 'hidden', border: '1px solid var(--border-glass)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
+            <img src="concordia_ilustracion.jpeg" alt="Concordia Networking Evento" style={{ width: '100%', height: 'auto', display: 'block' }} className="hover-scale" />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(10,11,14,0.95), transparent)', padding: '3rem 1.5rem 1.5rem' }}>
+              <span className="ticket-phase" style={{ fontSize: '0.75rem', marginBottom: '0.5rem', background: 'rgba(212, 175, 55, 0.25)', border: '1px solid rgba(212,175,55,0.4)' }}>CONCORDIA NETWORKING</span>
+              <h3 style={{ color: '#fff', fontSize: '1.5rem', fontFamily: 'var(--font-serif)', fontWeight: 'bold' }}>Experiencia de Conexión Empresarial</h3>
+            </div>
+          </div>
+          <div>
+            <p className="section-tag" style={{ textAlign: 'left' }}>CONEXIÓN ESTRATÉGICA</p>
+            <h2 className="section-title" style={{ textAlign: 'left', fontSize: '2.2rem', marginTop: '0.5rem', marginBottom: '1.5rem' }}>Impulsa tu Red de Contactos</h2>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.7', marginBottom: '1.2rem', fontSize: '1.05rem' }}>
+              El Networking es la herramienta más poderosa para acelerar el crecimiento de tu negocio. Este no es solo un evento de intercambio de tarjetas; es un espacio diseñado al detalle para entablar relaciones de confianza a largo plazo con directores, tomadores de decisiones y dueños de negocio.
+            </p>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.7', fontSize: '1.05rem' }}>
+              Disfruta de una atmósfera sumamente selecta, diseñada para inspirar colaboración, sinergias comerciales y nuevas oportunidades de inversión.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* SECCIÓN BENEFICIOS: ¿QUÉ VAS A VIVIR? */}
       <section>
         <div className="section-title-wrapper">
