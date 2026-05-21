@@ -412,9 +412,9 @@ function App() {
             <div className="benefit-icon-box">
               <i className="fa-solid fa-desktop"></i>
             </div>
-            <h3 className="benefit-card-title">Presenta tu Empresa (Slide - 20 minutos)</h3>
+            <h3 className="benefit-card-title">Presenta tu Empresa (Slide - 1 minuto)</h3>
             <p className="benefit-card-desc">
-              Tendrás la oportunidad de presentar tu empresa, proyecto o servicios durante 20 minutos mediante una slide en pantalla gigante durante el evento. Facilita que compradores y vendedores te ubiquen y se conecten contigo al instante.
+              Tendrás la oportunidad de presentar tu empresa, proyecto o servicios durante 1 minuto mediante una slide en pantalla gigante durante el evento. Facilita que compradores y vendedores te ubiquen y se conecten contigo al instante.
             </p>
           </div>
         </div>
