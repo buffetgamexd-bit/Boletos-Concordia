@@ -328,16 +328,13 @@ function App() {
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Incluye registro, cena y actividades de valor</p>
             
             <div className="ticket-pricing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0' }}>
-              <div style={{ textDecoration: 'line-through', color: 'rgba(0, 0, 0, 0.4)', fontSize: '1.15rem', marginBottom: '0.2rem', fontWeight: '500' }}>
-                $1,500 MXN
+              <div style={{ color: 'var(--emerald-primary)', fontSize: '1.1rem', marginBottom: '0.2rem', fontWeight: 'bold', textAlign: 'center', background: 'rgba(212, 175, 55, 0.1)', padding: '0.5rem 1rem', borderRadius: '10px' }}>
+                🔥 2 accesos por $1,500 (Válido del 26 al 29 de mayo)
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', marginTop: '0.5rem' }}>
                 <span className="ticket-price-currency" style={{ color: 'var(--gold-glow)', fontSize: '1.6rem', marginRight: '0.1rem' }}>$</span>
-                <span className="ticket-price-amount" style={{ color: 'var(--gold-glow)', fontSize: '3.2rem', fontWeight: '800', lineHeight: 1 }}>1,300</span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginLeft: '0.5rem' }}>MXN / persona</span>
-              </div>
-              <div style={{ background: 'var(--emerald-primary)', color: 'white', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.9rem', marginTop: '1rem', fontWeight: 'bold' }}>
-                🔥 PROMO ESPECIAL: 2 Boletos x $1,500 MXN (Hasta el 29 de Mayo)
+                <span className="ticket-price-amount" style={{ color: 'var(--gold-glow)', fontSize: '3.2rem', fontWeight: '800', lineHeight: 1 }}>1,500</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginLeft: '0.5rem' }}>MXN / 2 accesos</span>
               </div>
             </div>
           </div>
