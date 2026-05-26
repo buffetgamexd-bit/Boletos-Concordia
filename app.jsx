@@ -34,6 +34,19 @@ function App() {
     qty: 1
   });
 
+  const calculateTotal = (qty) => {
+    const now = new Date();
+    const promoStart = new Date('2026-05-26T00:00:00');
+    const promoEnd = new Date('2026-05-29T23:59:59');
+    
+    if (now >= promoStart && now <= promoEnd) {
+      const pairs = Math.floor(qty / 2);
+      const singles = qty % 2;
+      return (pairs * 1500) + (singles * 1300);
+    }
+    return qty * 1300;
+  };
+
   // --- DETECTAR REDIRECCIÓN DE PAGO (URL) ---
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -323,6 +336,9 @@ function App() {
                 <span className="ticket-price-amount" style={{ color: 'var(--gold-glow)', fontSize: '3.2rem', fontWeight: '800', lineHeight: 1 }}>1,300</span>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginLeft: '0.5rem' }}>MXN / persona</span>
               </div>
+              <div style={{ background: 'var(--emerald-primary)', color: 'white', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.9rem', marginTop: '1rem', fontWeight: 'bold' }}>
+                🔥 PROMO ESPECIAL: 2 Boletos x $1,500 MXN (Hasta el 29 de Mayo)
+              </div>
             </div>
           </div>
 
@@ -442,7 +458,7 @@ function App() {
       {/* BOTÓN MÓVIL PEGAJOSO DE LLAMADA A LA ACCIÓN */}
       <div className="mobile-sticky-btn">
         <button className="btn-primary" onClick={() => setModalOpen(true)}>
-          <i className="fa-solid fa-ticket"></i> Inscribirme — $1,300 MXN
+          <i className="fa-solid fa-ticket"></i> Inscribirme — Promoción Disponible
         </button>
       </div>
 
@@ -561,7 +577,7 @@ function App() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(212, 175, 55, 0.05)', padding: '1rem 1.5rem', borderRadius: '12px', border: '1px solid rgba(212, 175, 55, 0.1)', marginBottom: '2rem' }}>
                 <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Monto Total:</span>
                 <strong style={{ fontSize: '1.4rem', color: 'var(--gold-glow)' }}>
-                  $MXN {(formData.qty * 1300).toLocaleString('es-MX')}
+                  $MXN {calculateTotal(formData.qty).toLocaleString('es-MX')}
                 </strong>
               </div>
 

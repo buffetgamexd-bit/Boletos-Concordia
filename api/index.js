@@ -151,9 +151,43 @@ app.post('/create-checkout-session', async (req, res) => {
   const origin = host.includes('localhost') ? `http://${host}` : `https://${host}`;
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{
+    const now = new Date();
+    const promoStart = new Date('2026-05-26T00:00:00');
+    const promoEnd = new Date('2026-05-29T23:59:59');
+    
+    let line_items = [];
+    if (now >= promoStart && now <= promoEnd) {
+      const pairs = Math.floor(quantity / 2);
+      const singles = quantity % 2;
+      
+      if (pairs > 0) {
+        line_items.push({
+          price_data: {
+            currency: 'mxn',
+            product_data: {
+              name: 'Promo 2x1500 - Boletos Acceso',
+              description: 'Promoción 2x1500: Experiencia exclusiva de networking.',
+            },
+            unit_amount: 150000,
+          },
+          quantity: pairs,
+        });
+      }
+      if (singles > 0) {
+        line_items.push({
+          price_data: {
+            currency: 'mxn',
+            product_data: {
+              name: 'Boleto Acceso Individual - Conexión y Negocios',
+              description: 'Experiencia exclusiva de networking.',
+            },
+            unit_amount: 130000,
+          },
+          quantity: singles,
+        });
+      }
+    } else {
+      line_items.push({
         price_data: {
           currency: 'mxn',
           product_data: {
@@ -163,7 +197,12 @@ app.post('/create-checkout-session', async (req, res) => {
           unit_amount: 130000, // $1,300.00 MXN en centavos
         },
         quantity: quantity,
-      }],
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: line_items,
       mode: 'payment',
       customer_email: email,
       // Guardar todos los campos del registro en los metadatos para recuperarlos en la confirmación
