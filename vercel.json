@@ -10,6 +10,7 @@
     { "source": "/api/admin/login", "destination": "/api/index.js" },
     { "source": "/api/admin/enviar-boleto-fisico", "destination": "/api/index.js" },
     { "source": "/validar", "destination": "/validar.html" },
+    { "source": "/admin", "destination": "/index.html" },
     { "source": "/((?!.*\\.(?:jsx|js|css|png|jpg|jpeg|gif|svg|ico|json|otf|ttf|woff|woff2)$).*)$", "destination": "/index.html" }
   ]
 }

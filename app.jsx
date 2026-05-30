@@ -969,10 +969,6 @@ function App() {
         
         {/* ACCESOS PARA STAFF Y ADMIN */}
         <div style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(24, 116, 193, 0.1)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-          <a href="/validar" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textDecoration: 'none' }}>
-            <i className="fa-solid fa-qrcode" style={{ marginRight: '0.4rem' }}></i> Validar Boletos
-          </a>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>•</span>
           <a href="/admin" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textDecoration: 'none' }}>
             <i className="fa-solid fa-lock" style={{ marginRight: '0.4rem' }}></i> Acceso Admin
           </a>
