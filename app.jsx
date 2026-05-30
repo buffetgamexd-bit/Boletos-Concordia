@@ -967,11 +967,14 @@ function App() {
           <a href="https://www.youtube.com/@concordiaproducciones" target="_blank" className="footer-social-link"><i className="fa-brands fa-youtube"></i></a>
         </div>
         
-        {/* BOTÓN INFERIOR DE ACCESO PARA STAFF (VALIDAR QRS) - OCULTO AL PÚBLICO */}
-        <div style={{ display: 'none', marginTop: '2rem', borderTop: '1px solid rgba(212, 175, 55, 0.2)', paddingTop: '1.5rem' }}>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>¿Eres parte del Staff de Concordia?</p>
-          <a href="/validar" className="btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.9rem', display: 'inline-flex', background: 'transparent', border: '1px solid var(--gold-primary)', color: 'var(--emerald-primary)' }}>
-            <i className="fa-solid fa-qrcode" style={{ marginRight: '0.5rem' }}></i> Escanear e Inhabilitar Boletos
+        {/* ACCESOS PARA STAFF Y ADMIN */}
+        <div style={{ marginTop: '2.5rem', borderTop: '1px solid rgba(24, 116, 193, 0.1)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
+          <a href="/validar" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textDecoration: 'none' }}>
+            <i className="fa-solid fa-qrcode" style={{ marginRight: '0.4rem' }}></i> Validar Boletos
+          </a>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>•</span>
+          <a href="/admin" style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textDecoration: 'none' }}>
+            <i className="fa-solid fa-lock" style={{ marginRight: '0.4rem' }}></i> Acceso Admin
           </a>
         </div>
       </footer>
