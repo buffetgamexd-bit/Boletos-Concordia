@@ -35,16 +35,9 @@ function App() {
   });
 
   const calculateTotal = (qty) => {
-    const now = new Date();
-    const promoStart = new Date('2026-05-26T00:00:00');
-    const promoEnd = new Date('2026-05-29T23:59:59');
-    
-    if (now >= promoStart && now <= promoEnd) {
-      const pairs = Math.floor(qty / 2);
-      const singles = qty % 2;
-      return (pairs * 1500) + (singles * 1300);
-    }
-    return qty * 1300;
+    const pairs = Math.floor(qty / 2);
+    const singles = qty % 2;
+    return (pairs * 1500) + (singles * 1300);
   };
 
   // --- DETECTAR REDIRECCIÓN DE PAGO (URL) ---
@@ -329,7 +322,7 @@ function App() {
             
             <div className="ticket-pricing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0' }}>
               <div style={{ color: 'var(--emerald-primary)', fontSize: '1.1rem', marginBottom: '0.2rem', fontWeight: 'bold', textAlign: 'center', background: 'rgba(212, 175, 55, 0.1)', padding: '0.5rem 1rem', borderRadius: '10px' }}>
-                🔥 2 accesos por $1,500 (Válido del 26 al 29 de mayo)
+                🔥 2 accesos por $1,500
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', marginTop: '0.5rem' }}>
                 <span className="ticket-price-currency" style={{ color: 'var(--gold-glow)', fontSize: '1.6rem', marginRight: '0.1rem' }}>$</span>
