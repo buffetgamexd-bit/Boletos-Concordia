@@ -16,7 +16,538 @@ function ConcordiaLogo({ width = 200, height = 80 }) {
   );
 }
 
+// Componente de Panel de Administración
+function AdminPanel() {
+  const [password, setPassword] = React.useState('');
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [error, setError] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [sentList, setSentList] = React.useState(() => {
+    try {
+      const saved = localStorage.getItem('concordia_sent_tickets');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  // Lista de usuarios precargados
+  const [users, setUsers] = React.useState([
+    { id: 1, nombre: "Alejandra", apellidos: "Lumen", telefono: "5530410860", email: "imageplan360@gmail.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 2, nombre: "Kevin David", apellidos: "Ramirez Corona", telefono: "4426018152", email: "alianzas.comerciales2020@gmail.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 3, nombre: "Rodrigo", apellidos: "Aguilera", telefono: "5540957350", email: "brainfully@gmail.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 4, nombre: "Nancy", apellidos: "Gomez Bousquet", telefono: "4424766145", email: "ngomez@grupopadilla.com.mx", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 5, nombre: "Guillermo", apellidos: "Zapata", telefono: "5516525981", email: "gzapata.zem@gmail.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 6, nombre: "Guadalupe", apellidos: "Cruz y Corro Sanchez", telefono: "", email: "gucruz@flowserve.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 7, nombre: "Juan Carlos", apellidos: "Alvarez", telefono: "4423814592", email: "jcaim1505@gmail.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 8, nombre: "Miguel", apellidos: "Meráz López", telefono: "4423427164", email: "ivonne_universalpcqro@hotmail.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false },
+    { id: 9, nombre: "Lorena", apellidos: "Zorrilla", telefono: "4777542738", email: "lore.desarrolloejecutivo@gmail.com", negocio: "Registro Físico", giro: "N/A", qty: 2, total: 1500, editing: false }
+  ]);
+
+  // Formulario de registro manual
+  const [manualForm, setManualForm] = React.useState({
+    nombre: '',
+    apellidos: '',
+    telefono: '',
+    email: '',
+    negocio: 'Registro Físico',
+    giro: 'N/A',
+    qty: 2,
+    total: 1500
+  });
+
+  const [manualStatus, setManualStatus] = React.useState(null); // null | sending | success | error
+
+  React.useEffect(() => {
+    // Verificar si ya hay una sesión guardada
+    const savedToken = localStorage.getItem('concordia_admin_token');
+    if (savedToken) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: 'Admin', password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      setLoading(false);
+      if (data.success) {
+        localStorage.setItem('concordia_admin_token', data.token);
+        setIsLoggedIn(true);
+      } else {
+        setError(data.error || 'Credenciales incorrectas');
+      }
+    })
+    .catch(err => {
+      setLoading(false);
+      setError('Error al conectar con el servidor');
+    });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('concordia_admin_token');
+    setIsLoggedIn(false);
+    setPassword('');
+  };
+
+  const updateSentStatus = (emailOrId, statusVal, folio = '') => {
+    setSentList(prev => {
+      const updated = { ...prev, [emailOrId]: { status: statusVal, folio, date: new Date().toLocaleString() } };
+      localStorage.setItem('concordia_sent_tickets', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const handleSendTicket = (user) => {
+    // Marcar como enviando
+    updateSentStatus(user.email, 'sending');
+
+    const token = localStorage.getItem('concordia_admin_token');
+
+    fetch('/api/admin/enviar-boleto-fisico', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        nombre: user.nombre,
+        apellidos: user.apellidos,
+        telefono: user.telefono,
+        email: user.email,
+        negocio: user.negocio,
+        giro: user.giro,
+        qty: user.qty,
+        total: user.total
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        updateSentStatus(user.email, 'success', data.folio);
+      } else {
+        updateSentStatus(user.email, 'error');
+        alert('Error al enviar: ' + (data.error || 'Intente de nuevo.'));
+      }
+    })
+    .catch(err => {
+      updateSentStatus(user.email, 'error');
+      alert('Error de conexión al enviar el boleto.');
+    });
+  };
+
+  const handleUserChange = (id, field, value) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, [field]: value } : u));
+  };
+
+  const toggleUserEdit = (id) => {
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, editing: !u.editing } : u));
+  };
+
+  const handleManualSubmit = (e) => {
+    e.preventDefault();
+    setManualStatus('sending');
+
+    const token = localStorage.getItem('concordia_admin_token');
+
+    fetch('/api/admin/enviar-boleto-fisico', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(manualForm)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.ok) {
+        setManualStatus('success');
+        updateSentStatus(manualForm.email + '_manual_' + Date.now(), 'success', data.folio);
+        setManualForm({
+          nombre: '',
+          apellidos: '',
+          telefono: '',
+          email: '',
+          negocio: 'Registro Físico',
+          giro: 'N/A',
+          qty: 2,
+          total: 1500
+        });
+        setTimeout(() => setManualStatus(null), 5000);
+      } else {
+        setManualStatus('error');
+        alert('Error al registrar boleto manual: ' + (data.error || 'Intente de nuevo.'));
+      }
+    })
+    .catch(err => {
+      setManualStatus('error');
+      alert('Error de conexión al registrar boleto manual.');
+    });
+  };
+
+  const handleManualInputChange = (e) => {
+    const { name, value } = e.target;
+    setManualForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  if (!isLoggedIn) {
+    return (
+      <div className="landing-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <div className="success-card" style={{ maxWidth: '450px', width: '100%', padding: '2.5rem' }}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <ConcordiaLogo width={180} height={70} />
+          </div>
+          <h2 className="success-title" style={{ fontSize: '1.6rem', marginBottom: '1.5rem' }}>Acceso Administrativo</h2>
+          <form onSubmit={handleLogin}>
+            <div className="form-group" style={{ textAlign: 'left' }}>
+              <label className="form-label">Usuario</label>
+              <input 
+                type="text" 
+                className="form-input" 
+                value="Admin" 
+                disabled 
+              />
+            </div>
+            <div className="form-group" style={{ textAlign: 'left' }}>
+              <label className="form-label">Contraseña</label>
+              <input 
+                type="password" 
+                className="form-input" 
+                placeholder="Ingresa tu contraseña" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && <p style={{ color: '#ff4d4d', fontSize: '0.9rem', marginBottom: '1rem', fontWeight: '500' }}>{error}</p>}
+            <button type="submit" className="btn-primary" disabled={loading}>
+              {loading ? 'Validando...' : 'Iniciar Sesión'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="landing-container" style={{ maxWidth: '1100px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(24, 116, 193, 0.2)', paddingBottom: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ transform: 'scale(0.8)', transformOrigin: 'left center' }}>
+            <ConcordiaLogo width={180} height={70} />
+          </div>
+          <h1 style={{ fontSize: '1.8rem', color: 'var(--text-main)', margin: 0, fontWeight: '700' }}>Panel Admin - Registro Físico</h1>
+        </div>
+        <button onClick={handleLogout} className="btn-primary btn-emerald" style={{ width: 'auto', padding: '0.5rem 1.5rem', fontSize: '0.9rem' }}>
+          Cerrar Sesión
+        </button>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 0.7fr', gap: '2rem' }}>
+        
+        {/* LISTADO DE USUARIOS PRECARGADOS */}
+        <div>
+          <div className="ticket-card" style={{ padding: '2rem', marginBottom: '2rem' }}>
+            <h3 style={{ borderBottom: '1px solid rgba(24,116,193,0.1)', paddingBottom: '0.8rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <i className="fa-solid fa-list-check" style={{ color: 'var(--gold-primary)' }}></i>
+              Usuarios por Enviar (Pre-cargados)
+            </h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+              Aquí se encuentran los 9 clientes que pagaron en terminal/físico. Revisa sus datos, edítalos si es necesario y dale a <strong>Enviar</strong> para enviarles su QR y registrarlos en Sheets.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {users.map(user => {
+                const statusInfo = sentList[user.email] || { status: 'pending' };
+                const isSent = statusInfo.status === 'success';
+                const isSending = statusInfo.status === 'sending';
+
+                return (
+                  <div key={user.id} style={{ 
+                    border: '1px solid rgba(24, 116, 193, 0.15)', 
+                    borderRadius: '12px', 
+                    padding: '1.2rem', 
+                    background: isSent ? 'rgba(0, 176, 116, 0.03)' : 'rgba(0,0,0,0.01)',
+                    borderColor: isSent ? 'rgba(0, 176, 116, 0.2)' : 'rgba(24, 116, 193, 0.15)',
+                    transition: 'all 0.3s ease'
+                  }}>
+                    {user.editing ? (
+                      <div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', color: 'var(--gold-glow)' }}>Nombre</label>
+                            <input 
+                              type="text" 
+                              className="form-input" 
+                              style={{ padding: '0.5rem' }} 
+                              value={user.nombre} 
+                              onChange={(e) => handleUserChange(user.id, 'nombre', e.target.value)} 
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', color: 'var(--gold-glow)' }}>Apellidos</label>
+                            <input 
+                              type="text" 
+                              className="form-input" 
+                              style={{ padding: '0.5rem' }} 
+                              value={user.apellidos} 
+                              onChange={(e) => handleUserChange(user.id, 'apellidos', e.target.value)} 
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', color: 'var(--gold-glow)' }}>Email</label>
+                            <input 
+                              type="email" 
+                              className="form-input" 
+                              style={{ padding: '0.5rem' }} 
+                              value={user.email} 
+                              onChange={(e) => handleUserChange(user.id, 'email', e.target.value)} 
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', color: 'var(--gold-glow)' }}>Teléfono</label>
+                            <input 
+                              type="text" 
+                              className="form-input" 
+                              style={{ padding: '0.5rem' }} 
+                              value={user.telefono} 
+                              onChange={(e) => handleUserChange(user.id, 'telefono', e.target.value)} 
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.8rem', marginBottom: '0.8rem' }}>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', color: 'var(--gold-glow)' }}>Negocio</label>
+                            <input 
+                              type="text" 
+                              className="form-input" 
+                              style={{ padding: '0.5rem' }} 
+                              value={user.negocio} 
+                              onChange={(e) => handleUserChange(user.id, 'negocio', e.target.value)} 
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.75rem', color: 'var(--gold-glow)' }}>Giro</label>
+                            <input 
+                              type="text" 
+                              className="form-input" 
+                              style={{ padding: '0.5rem' }} 
+                              value={user.giro} 
+                              onChange={(e) => handleUserChange(user.id, 'giro', e.target.value)} 
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                          <button 
+                            onClick={() => toggleUserEdit(user.id)} 
+                            className="btn-primary" 
+                            style={{ width: 'auto', padding: '0.4rem 1rem', fontSize: '0.8rem', background: '#4b5563' }}
+                          >
+                            Guardar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div>
+                          <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: '600' }}>
+                            {user.nombre} {user.apellidos}
+                          </h4>
+                          <p style={{ margin: '0.2rem 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                            <i className="fa-solid fa-envelope" style={{ marginRight: '0.4rem' }}></i> {user.email} | 
+                            <i className="fa-solid fa-phone" style={{ margin: '0 0.4rem' }}></i> {user.telefono || 'Sin número'}
+                          </p>
+                          <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--gold-primary)' }}>
+                            🏷️ {user.negocio} ({user.giro}) • 🎟️ {user.qty} boletos • $MXN {user.total}
+                          </p>
+                          {isSent && (
+                            <span style={{ display: 'inline-block', marginTop: '0.4rem', fontSize: '0.75rem', background: 'rgba(0,176,116,0.15)', color: '#008c5a', padding: '0.1rem 0.5rem', borderRadius: '4px', fontWeight: 'bold' }}>
+                              ✅ Enviado (Folio: #{statusInfo.folio}) - {statusInfo.date}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button 
+                            onClick={() => toggleUserEdit(user.id)} 
+                            className="btn-primary" 
+                            style={{ width: 'auto', padding: '0.5rem', background: 'rgba(0,0,0,0.05)', color: 'var(--text-main)', border: '1px solid rgba(0,0,0,0.1)' }}
+                            disabled={isSent || isSending}
+                            title="Editar datos"
+                          >
+                            <i className="fa-pencil fas"></i>
+                          </button>
+                          <button 
+                            onClick={() => handleSendTicket(user)} 
+                            className={`btn-primary ${isSent ? 'btn-emerald' : ''}`} 
+                            style={{ 
+                              width: 'auto', 
+                              padding: '0.5rem 1.2rem', 
+                              fontSize: '0.85rem', 
+                              background: isSent ? '#00b074' : 'var(--gold-primary)',
+                              opacity: isSending ? 0.7 : 1
+                            }}
+                            disabled={isSent || isSending}
+                          >
+                            {isSending ? (
+                              <><div className="loader-spinner" style={{ width: '12px', height: '12px', borderLeftColor: '#fff', display: 'inline-block', marginRight: '0.4rem' }}></div>Enviando...</>
+                            ) : isSent ? (
+                              'Enviado ✔'
+                            ) : (
+                              <>Enviar QR <i className="fa-paper-plane fas" style={{ marginLeft: '0.4rem' }}></i></>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* REGISTRO MANUAL DE BOLETOS FÍSICOS */}
+        <div>
+          <div className="ticket-card" style={{ padding: '2rem' }}>
+            <h3 style={{ borderBottom: '1px solid rgba(24,116,193,0.1)', paddingBottom: '0.8rem', marginBottom: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <i className="fa-solid fa-user-plus" style={{ color: 'var(--gold-primary)' }}></i>
+              Registro Manual
+            </h3>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>
+              Utiliza este formulario para registrar a cualquier otro cliente que pague en físico y enviarle su QR de acceso de forma instantánea.
+            </p>
+
+            <form onSubmit={handleManualSubmit}>
+              <div className="form-group">
+                <label className="form-label">Nombre *</label>
+                <input 
+                  type="text" 
+                  name="nombre" 
+                  className="form-input" 
+                  value={manualForm.nombre} 
+                  onChange={handleManualInputChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Apellidos *</label>
+                <input 
+                  type="text" 
+                  name="apellidos" 
+                  className="form-input" 
+                  value={manualForm.apellidos} 
+                  onChange={handleManualInputChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Correo Electrónico *</label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  className="form-input" 
+                  value={manualForm.email} 
+                  onChange={handleManualInputChange} 
+                  required 
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Teléfono</label>
+                <input 
+                  type="text" 
+                  name="telefono" 
+                  className="form-input" 
+                  value={manualForm.telefono} 
+                  onChange={handleManualInputChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Negocio / Marca</label>
+                <input 
+                  type="text" 
+                  name="negocio" 
+                  className="form-input" 
+                  value={manualForm.negocio} 
+                  onChange={handleManualInputChange} 
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Giro Comercial</label>
+                <input 
+                  type="text" 
+                  name="giro" 
+                  className="form-input" 
+                  value={manualForm.giro} 
+                  onChange={handleManualInputChange} 
+                />
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Boletos</label>
+                  <input 
+                    type="number" 
+                    name="qty" 
+                    className="form-input" 
+                    value={manualForm.qty} 
+                    onChange={handleManualInputChange} 
+                    min="1"
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Total MXN</label>
+                  <input 
+                    type="number" 
+                    name="total" 
+                    className="form-input" 
+                    value={manualForm.total} 
+                    onChange={handleManualInputChange} 
+                    min="0"
+                    required 
+                  />
+                </div>
+              </div>
+
+              {manualStatus === 'success' && (
+                <p style={{ color: '#00b074', fontWeight: '600', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                  ✔ ¡Boleto registrado y enviado con éxito!
+                </p>
+              )}
+
+              <button 
+                type="submit" 
+                className="btn-primary" 
+                style={{ background: 'var(--emerald-primary)' }}
+                disabled={manualStatus === 'sending'}
+              >
+                {manualStatus === 'sending' ? 'Procesando...' : 'Registrar y Enviar'}
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 function App() {
+  const isAdminPath = window.location.pathname === '/admin';
+  
+  if (isAdminPath) {
+    return <AdminPanel />;
+  }
+
   // --- ESTADOS PRINCIPALES ---
   const [modalOpen, setModalOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);

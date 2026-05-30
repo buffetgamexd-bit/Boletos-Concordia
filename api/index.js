@@ -586,6 +586,275 @@ app.post('/api/inhabilitar-boleto', async (req, res) => {
   }
 });
 
+// ============ ENDPOINTS DE ADMINISTRACIÓN (REGISTRO FÍSICO) ============
+
+function verifyAdmin(req, res, next) {
+  const authHeader = req.headers['authorization'] || req.headers['x-admin-password'];
+  let token = '';
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else {
+    token = authHeader;
+  }
+  
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Concordia_Admin_2026_X7z9!';
+  if (token === adminPassword) {
+    return next();
+  }
+  return res.status(401).json({ error: 'No autorizado. Contraseña incorrecta.' });
+}
+
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Concordia_Admin_2026_X7z9!';
+  if (username === 'Admin' && password === adminPassword) {
+    return res.json({ success: true, token: adminPassword });
+  }
+  return res.status(401).json({ error: 'Credenciales inválidas.' });
+});
+
+app.post('/api/admin/enviar-boleto-fisico', verifyAdmin, async (req, res) => {
+  const { nombre, apellidos, negocio, giro, telefono, email, qty, total } = req.body;
+  if (!nombre || !apellidos || !email) {
+    return res.status(400).json({ error: 'Nombre, apellidos y correo son requeridos.' });
+  }
+
+  const quantity = parseInt(qty) || 2;
+  const totalAmount = parseFloat(total) || 1500;
+  const folio = 'F-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+
+  const clienteNombre = `${nombre} ${apellidos}`;
+  const clienteEmail = email.trim();
+  const clienteNegocio = negocio || 'Registro Físico';
+  const clienteGiro = giro || 'N/A';
+  const clienteTelefono = telefono || 'N/A';
+
+  try {
+    // 1. REGISTRAR EN GOOGLE SHEETS
+    await appendBoletoToSheet({
+      folio,
+      nombreCompleto: clienteNombre,
+      email: clienteEmail,
+      negocio: clienteNegocio,
+      giro: clienteGiro,
+      telefono: clienteTelefono,
+      cantidad: quantity,
+      total: totalAmount
+    });
+
+    const transporter = getTransporter();
+    if (!transporter) {
+      console.log('Nodemailer SMTP no configurado, saltando envíos de correo');
+      return res.json({ ok: true, sheets: true, emailSent: false, folio });
+    }
+
+    // Resolución dinámica de origen
+    const host = req.headers.host || 'localhost:5000';
+    const origin = host.includes('localhost') ? `http://${host}` : `https://${host}`;
+    const validationUrl = `${origin}/validar?folio=${folio}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(validationUrl)}`;
+
+    // 2. ENVIAR CORREO AL COMPRADOR (Estilo Boarding Pass, adaptado)
+    const emailCompradorHtml = `
+      <div style="font-family: 'Outfit', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0a0b0e; color: #f3f4f6; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+        
+        <!-- Encabezado -->
+        <div style="background: linear-gradient(135deg, #181a22 0%, #111319 100%); padding: 30px; text-align: center; border-bottom: 2px dashed rgba(212, 175, 55, 0.3); position: relative;">
+          <img src="cid:concordialogo" alt="Concordia Producciones" style="max-height: 70px; margin-bottom: 12px; display: inline-block;" />
+          <h2 style="color: #d4af37; margin: 0; font-size: 24px; font-family: 'Playfair Display', Georgia, serif; letter-spacing: 2px; text-transform: uppercase;">CONCORDIA PRODUCCIONES</h2>
+          <p style="color: #9ca3af; margin: 5px 0 0 0; font-size: 11px; letter-spacing: 4px; text-transform: uppercase;">BOARDING PASS • ACCESO AL EVENTO</p>
+        </div>
+
+        <!-- Cuerpo del Pase -->
+        <div style="padding: 30px;">
+          <h1 style="color: #ffffff; font-size: 22px; margin-top: 0; margin-bottom: 10px; font-weight: 600; text-align: center;">¡Tu pase de acceso está confirmado! 🎉</h1>
+          <p style="color: #9ca3af; font-size: 14px; line-height: 1.6; text-align: center; margin-bottom: 30px;">
+            Hola <strong>${clienteNombre}</strong>, gracias por tu interés en nuestro evento exclusivo de networking. Hemos registrado tu inscripción y tu pago de <strong>$${totalAmount.toLocaleString('es-MX')} MXN</strong> con éxito. A continuación te presentamos tu boleto digital oficial para acceder al evento.
+          </p>
+
+          <!-- Detalles del Evento -->
+          <div style="background-color: rgba(212, 175, 55, 0.03); border-left: 3px solid #d4af37; border-radius: 10px; padding: 15px 20px; margin-bottom: 25px; border-top: 1px solid rgba(212,175,55,0.1); border-right: 1px solid rgba(212,175,55,0.1); border-bottom: 1px solid rgba(212,175,55,0.1);">
+            <p style="margin: 0 0 10px 0; color: #ffffff; font-size: 15px; font-weight: bold;">Una experiencia de alto valor te espera:</p>
+            <p style="margin: 5px 0; font-size: 14px; color: #f3f4f6;">🍸 <strong>Coctelería Premium</strong> de bienvenida</p>
+            <p style="margin: 5px 0; font-size: 14px; color: #f3f4f6;">🍽️ <strong>Cena de 3 tiempos</strong> exclusiva</p>
+            <p style="margin: 5px 0; font-size: 14px; color: #f3f4f6;">🤝 <strong>Networking de alto valor</strong> y conexiones reales</p>
+            <p style="margin: 12px 0 0 0; font-size: 13.5px; color: #f3e5ab; line-height: 1.5;">
+              💻 <strong>¡Presenta tu marca!</strong> Como asistente, tienes la oportunidad de presentar tu empresa, proyecto o servicios mediante una slide en pantalla gigante durante el evento para generar nuevas conexiones y oportunidades de negocio con compradores y vendedores.
+            </p>
+            <p style="margin: 8px 0 0 0; font-size: 12px; color: #9ca3af; line-height: 1.4;">
+              <em>Para coordinar la proyección, envía tu slide de presentación (formato 16:9 / horizontal) respondiendo directamente a este correo electrónico.</em>
+            </p>
+          </div>
+
+          <!-- Tarjeta de Boleto Estilo Físico -->
+          <div style="background-color: #12141a; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 15px; padding: 25px; margin-bottom: 25px;">
+            
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px; margin-bottom: 15px;">
+              <div>
+                <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block; letter-spacing: 1px;">EVENTO</span>
+                <strong style="font-size: 15px; color: #f3e5ab;">CONEXIÓN Y NEGOCIOS</strong>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block; letter-spacing: 1px;">FOLIO BOLETO</span>
+                <strong style="font-size: 15px; color: #d4af37;">#${folio}</strong>
+              </div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #9ca3af;">Asistente:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #ffffff; text-align: right; font-weight: bold;">${clienteNombre}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #9ca3af;">Negocio / Marca:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #ffffff; text-align: right;">${clienteNegocio}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #9ca3af;">Giro:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #ffffff; text-align: right;">${clienteGiro}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; font-size: 13px; color: #9ca3af;">Boletos Adquiridos:</td>
+                <td style="padding: 6px 0; font-size: 13px; color: #d4af37; text-align: right; font-weight: bold;">${quantity} ${quantity === 1 ? 'Acceso' : 'Accesos'}</td>
+              </tr>
+            </table>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block;">FECHA Y HORA</span>
+                <strong style="font-size: 13px; color: #ffffff;">3 Jun 2026 | 7:00 PM</strong>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block;">LUGAR</span>
+                <strong style="font-size: 13px; color: #ffffff;">Club Altozano, Qro.</strong>
+              </div>
+            </div>
+
+            <!-- Código QR de Acceso Integrado -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; margin-top: 20px; text-align: center;">
+              <span style="font-size: 10px; color: #9ca3af; text-transform: uppercase; display: block; margin-bottom: 12px; letter-spacing: 2px;">
+                ${quantity === 1 ? 'CÓDIGO QR DE ACCESO PERSONAL' : `CÓDIGO QR DE ACCESO GRUPAL (${quantity} PERSONAS)`}
+              </span>
+              <div style="background-color: #ffffff; padding: 12px; display: inline-block; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                <img src="${qrUrl}" alt="Código QR de Validación" style="width: 150px; height: 150px; display: block;" />
+              </div>
+              <p style="color: #9ca3af; font-size: 11px; margin: 10px 0 0 0; line-height: 1.4;">
+                Presenta este código QR en tu celular para ingresar al evento (Válido para ${quantity} ${quantity === 1 ? 'persona' : 'personas'}).<br />
+                <em style="color: #d4af37;">Una vez escaneado por el staff, quedará inhabilitado.</em>
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Nota informativa de ubicación -->
+          <div style="background-color: rgba(212, 175, 55, 0.05); border: 1px solid rgba(212, 175, 55, 0.1); border-radius: 10px; padding: 15px; font-size: 12px; line-height: 1.5; color: #f3e5ab; text-align: center;">
+            📍 <strong>Ubicación del evento:</strong> Club Altozano Querétaro. Te sugerimos llegar 15 minutos antes para el registro y coctelería de bienvenida. ¡Prepara tus tarjetas de presentación digitales o físicas!
+          </div>
+
+        </div>
+
+        <!-- Footer del Correo -->
+        <div style="background-color: #111319; padding: 20px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+          <p style="color: #9ca3af; margin: 0; font-size: 12px;">¿Tienes alguna duda o requerimiento especial?</p>
+          <p style="margin: 5px 0 0 0; font-size: 12px;"><a href="mailto:contactobuffetgames@gmail.com" style="color: #d4af37; text-decoration: none;">Escríbenos a contactobuffetgames@gmail.com</a></p>
+        </div>
+      </div>
+    `;
+
+    await transporter.sendMail({
+      from: `"Concordia Producciones" <${process.env.GMAIL_USER}>`,
+      to: clienteEmail,
+      subject: `🎟️ Tu Boleto Confirmado - Folio #${folio} - Concordia Producciones`,
+      html: emailCompradorHtml,
+      attachments: [
+        {
+          filename: 'logo.png',
+          path: path.join(__dirname, '..', 'logo.png'),
+          cid: 'concordialogo',
+          contentDisposition: 'inline'
+        }
+      ]
+    }).catch(e => console.error('Error al enviar correo al comprador (físico):', e.message));
+
+    // 3. ENVIAR CORREO DE ALERTA AL ORGANIZADOR
+    const merchantEmail = process.env.MERCHANT_EMAIL || process.env.GMAIL_USER;
+    if (merchantEmail) {
+      const emailMerchantHtml = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; color: #333; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+          <div style="background-color: #0a0b0e; padding: 20px; text-align: center;">
+            <img src="cid:concordialogo" alt="Concordia Producciones" style="max-height: 50px;" />
+          </div>
+          <div style="padding: 20px;">
+            <h2 style="color: #d4af37; margin-top: 0;">🛒 Registro de Boleto Físico (#${folio})</h2>
+            <p>Se ha registrado un boleto comprado físicamente (fuera de Stripe).</p>
+            
+            <table style="width:100%; border:1px solid #ddd; border-collapse:collapse; margin-top:20px;">
+              <tr style="background:#f9f9f9;">
+                <th style="padding:10px; border:1px solid #ddd; text-align:left;">Campo</th>
+                <th style="padding:10px; border:1px solid #ddd; text-align:left;">Detalle</th>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Folio de Venta</strong></td>
+                <td style="padding:10px; border:1px solid #ddd; color:#d4af37; font-weight:bold;">#${folio}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Cliente</strong></td>
+                <td style="padding:10px; border:1px solid #ddd; font-weight:bold;">${clienteNombre}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Email</strong></td>
+                <td style="padding:10px; border:1px solid #ddd;"><a href="mailto:${clienteEmail}">${clienteEmail}</a></td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Teléfono</strong></td>
+                <td style="padding:10px; border:1px solid #ddd;">${clienteTelefono}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Negocio / Marca</strong></td>
+                <td style="padding:10px; border:1px solid #ddd;">${clienteNegocio}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Giro Comercial</strong></td>
+                <td style="padding:10px; border:1px solid #ddd;">${clienteGiro}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Cantidad Boletos</strong></td>
+                <td style="padding:10px; border:1px solid #ddd; font-weight:bold;">${quantity}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px; border:1px solid #ddd;"><strong>Monto Registrado</strong></td>
+                <td style="padding:10px; border:1px solid #ddd; color:#d4af37; font-weight:bold;">$${totalAmount.toLocaleString('es-MX')} MXN (Físico)</td>
+              </tr>
+            </table>
+            
+            <p style="margin-top:20px; font-size:12px; color:#666;">Este registro ya ha sido añadido automáticamente a Google Sheets.</p>
+          </div>
+        </div>
+      `;
+
+      await transporter.sendMail({
+        from: `"Sistema Concordia" <${process.env.GMAIL_USER}>`,
+        to: merchantEmail,
+        subject: `🔔 Registro Físico #${folio} - ${clienteNombre} ($${totalAmount.toLocaleString('es-MX')} MXN)`,
+        html: emailMerchantHtml,
+        attachments: [
+          {
+            filename: 'logo.png',
+            path: path.join(__dirname, '..', 'logo.png'),
+            cid: 'concordialogo',
+            contentDisposition: 'inline'
+          }
+        ]
+      }).catch(e => console.error('Error al enviar correo al comerciante (físico):', e.message));
+    }
+
+    res.json({ ok: true, sheets: true, emailSent: true, folio });
+  } catch (err) {
+    console.error('Error procesando boleto físico:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Fallback para SPA en producción y local
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
