@@ -852,8 +852,8 @@ function App() {
             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Incluye registro, cena y actividades de valor</p>
             
             <div className="ticket-pricing" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '1rem 0' }}>
-              <div style={{ color: 'var(--emerald-primary)', fontSize: '1.1rem', marginBottom: '0.2rem', fontWeight: 'bold', textAlign: 'center', background: 'rgba(212, 175, 55, 0.1)', padding: '0.5rem 1rem', borderRadius: '10px' }}>
-                🔥 2 accesos por $1,500
+              <div style={{ color: 'var(--emerald-primary)', fontSize: '1.05rem', marginBottom: '0.2rem', fontWeight: 'bold', textAlign: 'center', background: 'rgba(212, 175, 55, 0.1)', padding: '0.5rem 1rem', borderRadius: '10px' }}>
+                🔥 Promo hasta el 31 de mayo: 2x$1,500 • 4x$3,000 • 6x$4,500
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', marginTop: '0.5rem' }}>
                 <span className="ticket-price-currency" style={{ color: 'var(--gold-glow)', fontSize: '1.6rem', marginRight: '0.1rem' }}>$</span>
