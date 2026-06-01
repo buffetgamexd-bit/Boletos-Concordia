@@ -1,0 +1,11 @@
+- generic [ref=e4]:
+  - img "Concordia Jones Audio Logo" [ref=e6]
+  - heading "Acceso Administrativo" [level=2] [ref=e7]
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]: Usuario
+      - textbox [disabled] [ref=e11]: Admin
+    - generic [ref=e12]:
+      - generic [ref=e13]: Contraseña
+      - textbox "Ingresa tu contraseña" [ref=e14]
+    - button "Iniciar Sesión" [ref=e15] [cursor=pointer]

@@ -161,7 +161,7 @@ app.post('/create-checkout-session', async (req, res) => {
           currency: 'mxn',
           product_data: {
             name: 'Promo Especial (2x1500, 4x3000, 6x4500) - Boletos Acceso',
-            description: 'Promoción especial hasta 31 de Mayo: Experiencia exclusiva de networking.',
+            description: 'Promoción especial: Experiencia exclusiva de networking.',
           },
           unit_amount: 150000,
         },
